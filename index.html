@@ -65,6 +65,18 @@
       background-color: #2C3E50;
       color: white;
     }
+    iframe {
+      margin: 10px;
+      border: none;
+    }
+    .full-width {
+      width: 100%;
+      height: 400px;
+    }
+    .half-width {
+      width: 48%;
+      height: 300px;
+    }
   </style>
 </head>
 <body>
@@ -74,25 +86,34 @@
   </header>
 
   <div class="container">
+    <!-- Load Cell Widget -->
     <div class="card" id="loadCellCard">
       <h2>Load Cell (Weight)</h2>
-      <p class="value" id="loadCellValue">Loading...</p>
+      <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2741407/widgets/966739"></iframe>
     </div>
+
+    <!-- Frequency Widget -->
     <div class="card" id="oscillationCard">
       <h2>Oscillation Frequency</h2>
-      <p class="value" id="oscillationValue">Loading...</p>
+      <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2741407/widgets/966913"></iframe>
     </div>
-    <div class="card" id="accelerationCard">
-      <h2>Acceleration (Z-axis)</h2>
-      <p class="value" id="accelerationValue">Loading...</p>
+
+    <!-- Left Deflection Widget -->
+    <div class="card" id="deflectionLeftCard">
+      <h2>Deflection (Left)</h2>
+      <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2741407/widgets/966908"></iframe>
     </div>
-    <div class="card" id="potentiometer1Card">
-      <h2>Potentiometer 1 Length</h2>
-      <p class="value" id="potentiometer1Value">Loading...</p>
+
+    <!-- Right Deflection Widget -->
+    <div class="card" id="deflectionRightCard">
+      <h2>Deflection (Right)</h2>
+      <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/2741407/widgets/966911"></iframe>
     </div>
-    <div class="card" id="potentiometer2Card">
-      <h2>Potentiometer 2 Length</h2>
-      <p class="value" id="potentiometer2Value">Loading...</p>
+
+    <!-- Combined Chart for Load and Deflection -->
+    <div class="card full-width" id="loadDeflectionChart">
+      <h2>Load and Deflection Chart</h2>
+      <iframe class="full-width" src="https://thingspeak.com/apps/matlab_visualizations/592524"></iframe>
     </div>
   </div>
 
@@ -104,34 +125,5 @@
     <p>&copy; 2024 Sensor Dashboard | Powered by ThingSpeak</p>
   </footer>
 
-  <script>
-    const apiKey = 'JTEBR201T5O5C5JP';  // Replace with your ThingSpeak API Key
-    const channelId = 'YOUR_CHANNEL_ID';  // Replace with your ThingSpeak Channel ID
-    const apiUrl = `https://api.thingspeak.com/channels/${channelId}/fields/1.json?api_key=${apiKey}&results=1`;
-
-    async function fetchData() {
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-
-      // Update the values on the page with data from ThingSpeak
-      const lastEntry = data.feeds[0];
-
-      document.getElementById('loadCellValue').textContent = `${lastEntry.field1} g`;
-      document.getElementById('oscillationValue').textContent = `${lastEntry.field2} Hz`;
-      document.getElementById('accelerationValue').textContent = `${lastEntry.field3} m/s²`;
-      document.getElementById('potentiometer1Value').textContent = `${lastEntry.field4} mm`;
-      document.getElementById('potentiometer2Value').textContent = `${lastEntry.field5} mm`;
-
-      // Check for threshold violations
-      if (parseFloat(lastEntry.field1) > 750 || parseFloat(lastEntry.field2) > 0.5 || parseFloat(lastEntry.field4) > 1.0 || parseFloat(lastEntry.field5) > 1.0) {
-        document.getElementById('alertMessage').style.display = 'block';  // Show alert if threshold is exceeded
-      }
-    }
-
-    // Fetch data every 30 seconds (or as needed)
-    setInterval(fetchData, 30000);
-    fetchData();  // Initial data fetch
-  </script>
 </body>
 </html>
-
