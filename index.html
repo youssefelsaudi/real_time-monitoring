@@ -143,10 +143,11 @@
       </tr>
     </table>
 
-    <!-- Real-Time Graphs for Load and Frequency -->
+    <!-- Real-Time Graphs for Load, Frequency, and Length -->
     <h2>Sensor Data Graphs</h2>
     <canvas id="loadGraph" width="400" height="200"></canvas>
     <canvas id="frequencyGraph" width="400" height="200"></canvas>
+    <canvas id="lengthGraph" width="400" height="200"></canvas>
 
     <h2>Working Time</h2>
     <p>Total Working Time: <span id="totalWorkingTime">Loading...</span> hours</p>
@@ -166,8 +167,14 @@
   <script>
     let loadData = [];
     let frequencyData = [];
+    let lengthData = [];
     let timeData = [];
     let maxDataPoints = 20; // Limit the number of points on the graph
+
+    // Thresholds
+    const loadThreshold = 750; // grams
+    const frequencyThreshold = 3; // Hz
+    const lengthThreshold = 1; // mm
 
     // Function to fetch real-time data and update the table
     function fetchData() {
@@ -177,13 +184,15 @@
           const latestEntry = data.feeds[data.feeds.length - 1];
           const loadValue = parseFloat(latestEntry.field1);
           const frequencyValue = parseFloat(latestEntry.field2);
+          const length1 = parseFloat(latestEntry.field4);
+          const length2 = parseFloat(latestEntry.field5);
           const totalWorkingTime = parseFloat(latestEntry.field6);
 
           // Update the table
           document.getElementById('loadValue').innerText = loadValue;
           document.getElementById('frequency').innerText = frequencyValue;
-          document.getElementById('length1').innerText = latestEntry.field4;
-          document.getElementById('length2').innerText = latestEntry.field5;
+          document.getElementById('length1').innerText = length1;
+          document.getElementById('length2').innerText = length2;
           document.getElementById('totalWorkingTime').innerText = totalWorkingTime;
 
           // Update progress bar for Working Time
@@ -193,11 +202,13 @@
           // Update real-time graphs
           loadData.push(loadValue);
           frequencyData.push(frequencyValue);
+          lengthData.push(length1); // Using the first potentiometer value
           timeData.push(new Date().toLocaleTimeString());
 
           if (loadData.length > maxDataPoints) {
             loadData.shift();
             frequencyData.shift();
+            lengthData.shift();
             timeData.shift();
           }
 
@@ -217,6 +228,11 @@
       frequencyChart.data.labels = timeData;
       frequencyChart.data.datasets[0].data = frequencyData;
       frequencyChart.update();
+
+      // Length Graph
+      lengthChart.data.labels = timeData;
+      lengthChart.data.datasets[0].data = lengthData;
+      lengthChart.update();
     }
 
     // Create Load Graph
@@ -231,18 +247,16 @@
           borderColor: 'rgb(52, 152, 219)',
           backgroundColor: 'rgba(52, 152, 219, 0.2)',
           fill: true,
+          pointBackgroundColor: function(context) {
+            return context.dataset.data[context.dataIndex] > loadThreshold ? 'red' : 'green'; // Exceeding threshold in red
+          },
         }]
       },
       options: {
         responsive: true,
         scales: {
-          x: {
-            type: 'linear',
-            position: 'bottom'
-          },
-          y: {
-            beginAtZero: true
-          }
+          x: { type: 'linear', position: 'bottom' },
+          y: { beginAtZero: true }
         }
       }
     });
@@ -254,30 +268,49 @@
       data: {
         labels: [],
         datasets: [{
-          label: 'Frequency Value',
+          label: 'Frequency',
           data: [],
-          borderColor: 'rgb(231, 76, 60)',
-          backgroundColor: 'rgba(231, 76, 60, 0.2)',
+          borderColor: 'rgb(46, 204, 113)',
+          backgroundColor: 'rgba(46, 204, 113, 0.2)',
           fill: true,
+          pointBackgroundColor: function(context) {
+            return context.dataset.data[context.dataIndex] > frequencyThreshold ? 'red' : 'green'; // Exceeding threshold in red
+          },
         }]
       },
       options: {
         responsive: true,
         scales: {
-          x: {
-            type: 'linear',
-            position: 'bottom'
-          },
-          y: {
-            beginAtZero: true
-          }
+          x: { type: 'linear', position: 'bottom' },
+          y: { beginAtZero: true }
         }
       }
     });
 
-    // Event listener for "View Weekly Report" button
-    document.getElementById('viewWeeklyReportButton').addEventListener('click', function() {
-      window.location.href = 'weekly_report.html'; // Navigate to weekly_report.html
+    // Create Length Graph
+    const ctxLength = document.getElementById('lengthGraph').getContext('2d');
+    const lengthChart = new Chart(ctxLength, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Potentiometer Length (mm)',
+          data: [],
+          borderColor: 'rgb(241, 196, 15)',
+          backgroundColor: 'rgba(241, 196, 15, 0.2)',
+          fill: true,
+          pointBackgroundColor: function(context) {
+            return context.dataset.data[context.dataIndex] > lengthThreshold ? 'red' : 'green'; // Exceeding threshold in red
+          },
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { type: 'linear', position: 'bottom' },
+          y: { beginAtZero: true }
+        }
+      }
     });
 
     // Fetch data every 15 seconds
@@ -285,6 +318,11 @@
 
     // Initial fetch when the page loads
     fetchData();
+
+    // Event listener for "View Weekly Report" button
+    document.getElementById('viewWeeklyReportButton').addEventListener('click', function() {
+      window.location.href = 'weekly_report.html'; // Navigate to weekly_report.html
+    });
   </script>
 </body>
 </html>
