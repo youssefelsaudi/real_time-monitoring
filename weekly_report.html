@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 20px 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Weekly Report</h1>
+
+  <div>
+    <h2>Exceedances Overview</h2>
+    <canvas id="weeklyReportChart" width="400" height="200"></canvas>
+  </div>
+
+  <button onclick="window.location.href = 'index.html'">Back to Dashboard</button>
+
+  <script>
+    // Function to render the weekly report chart
+    function renderWeeklyReportChart() {
+      fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
+        .then(response => response.json())
+        .then(data => {
+          const labels = [];
+          const loadExceedancesData = [];
+          const frequencyExceedancesData = [];
+          const lengthExceedancesData = [];
+          
+          data.feeds.forEach(feed => {
+            labels.push(feed.created_at);  // Date of the reading
+            loadExceedancesData.push(feed.field7);  // Load exceedance count
+            frequencyExceedancesData.push(feed.field8);  // Frequency exceedance count
+            lengthExceedancesData.push(feed.field9);  // Length exceedance count
+          });
+
+          new Chart(document.getElementById('weeklyReportChart'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: 'Load Exceedances',
+                  data: loadExceedancesData,
+                  borderColor: 'red',
+                  fill: false
+                },
+                {
+                  label: 'Frequency Exceedances',
+                  data: frequencyExceedancesData,
+                  borderColor: 'blue',
+                  fill: false
+                },
+                {
+                  label: 'Length Exceedances',
+                  data: lengthExceedancesData,
+                  borderColor: 'green',
+                  fill: false
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: 'Date'
+                  }
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: 'Exceedances'
+                  }
+                }
+              }
+            }
+          });
+        });
+    }
+
+    // Call the function to render the weekly report chart
+    renderWeeklyReportChart();
+  </script>
+</body>
+</html>
