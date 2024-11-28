@@ -143,12 +143,6 @@
       </tr>
     </table>
 
-    <!-- Real-Time Graphs for Load, Frequency, and Length -->
-    <h2>Sensor Data Graphs</h2>
-    <canvas id="loadGraph" width="400" height="200"></canvas>
-    <canvas id="frequencyGraph" width="400" height="200"></canvas>
-    <canvas id="lengthGraph" width="400" height="200"></canvas>
-
     <h2>Working Time</h2>
     <p>Total Working Time: <span id="totalWorkingTime">Loading...</span> hours</p>
 
@@ -199,7 +193,7 @@
           const progressBar = document.getElementById('workingTimeProgress');
           progressBar.style.width = `${(totalWorkingTime / 24) * 100}%`;
 
-          // Update real-time graphs
+          // Update data arrays (but without graphs)
           loadData.push(loadValue);
           frequencyData.push(frequencyValue);
           lengthData.push(length1); // Using the first potentiometer value
@@ -211,107 +205,8 @@
             lengthData.shift();
             timeData.shift();
           }
-
-          // Update charts
-          updateCharts();
         });
     }
-
-    // Function to update the charts
-    function updateCharts() {
-      // Load Graph
-      loadChart.data.labels = timeData;
-      loadChart.data.datasets[0].data = loadData;
-      loadChart.update();
-
-      // Frequency Graph
-      frequencyChart.data.labels = timeData;
-      frequencyChart.data.datasets[0].data = frequencyData;
-      frequencyChart.update();
-
-      // Length Graph
-      lengthChart.data.labels = timeData;
-      lengthChart.data.datasets[0].data = lengthData;
-      lengthChart.update();
-    }
-
-    // Create Load Graph
-    const ctxLoad = document.getElementById('loadGraph').getContext('2d');
-    const loadChart = new Chart(ctxLoad, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Load Value',
-          data: [],
-          borderColor: 'rgb(52, 152, 219)',
-          backgroundColor: 'rgba(52, 152, 219, 0.2)',
-          fill: true,
-          pointBackgroundColor: function(context) {
-            return context.dataset.data[context.dataIndex] > loadThreshold ? 'red' : 'green'; // Exceeding threshold in red
-          },
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: { type: 'linear', position: 'bottom' },
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-    // Create Frequency Graph
-    const ctxFreq = document.getElementById('frequencyGraph').getContext('2d');
-    const frequencyChart = new Chart(ctxFreq, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Frequency',
-          data: [],
-          borderColor: 'rgb(46, 204, 113)',
-          backgroundColor: 'rgba(46, 204, 113, 0.2)',
-          fill: true,
-          pointBackgroundColor: function(context) {
-            return context.dataset.data[context.dataIndex] > frequencyThreshold ? 'red' : 'green'; // Exceeding threshold in red
-          },
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: { type: 'linear', position: 'bottom' },
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-    // Create Length Graph
-    const ctxLength = document.getElementById('lengthGraph').getContext('2d');
-    const lengthChart = new Chart(ctxLength, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Potentiometer Length (mm)',
-          data: [],
-          borderColor: 'rgb(241, 196, 15)',
-          backgroundColor: 'rgba(241, 196, 15, 0.2)',
-          fill: true,
-          pointBackgroundColor: function(context) {
-            return context.dataset.data[context.dataIndex] > lengthThreshold ? 'red' : 'green'; // Exceeding threshold in red
-          },
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: { type: 'linear', position: 'bottom' },
-          y: { beginAtZero: true }
-        }
-      }
-    });
 
     // Fetch data every 15 seconds
     setInterval(fetchData, 15000);
