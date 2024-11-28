@@ -21,155 +21,64 @@
   <h1>Weekly Report</h1>
 
   <div>
-    <h2>Exceedances Overview</h2>
-    <canvas id="weeklyReportChart" width="400" height="200"></canvas>
+    <h2>Working Hours</h2>
+    <p>Total working time over the past week: <span id="weeklyWorkingTime">Loading...</span> hours</p>
   </div>
 
-  <button onclick="window.location.href = 'index.html'">Back to Dashboard</button>
+  <div>
+    <h2>Sensor Threshold Exceedances</h2>
+    <table>
+      <tr>
+        <td>Load Exceedances:</td>
+        <td id="weeklyLoadExceedances">Loading...</td>
+      </tr>
+      <tr>
+        <td>Frequency Exceedances:</td>
+        <td id="weeklyFrequencyExceedances">Loading...</td>
+      </tr>
+      <tr>
+        <td>Length Exceedances:</td>
+        <td id="weeklyLengthExceedances">Loading...</td>
+      </tr>
+    </table>
+  </div>
+
+  <button id="backToDashboardButton">Back to Dashboard</button>
 
   <script>
-    // Function to aggregate data by week and render the weekly report chart
-    function renderWeeklyReportChart() {
-      fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4&results=168')  // Get the last 168 entries (7 days * 24 hours)
+    // Fetch weekly report data and update the page
+    function fetchWeeklyData() {
+      fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
         .then(response => response.json())
         .then(data => {
-          // Prepare arrays for the aggregated data
-          let weeklyData = {
-            labels: [],  // Store labels (week number or date range)
-            loadExceedancesData: [],
-            frequencyExceedancesData: [],
-            lengthExceedancesData: [],
-            totalWorkingTimeData: []
-          };
+          let weeklyWorkingTime = 0;
+          let weeklyLoadExceedances = 0;
+          let weeklyFrequencyExceedances = 0;
+          let weeklyLengthExceedances = 0;
 
-          let currentWeek = null;
-          let weekLoadExceedances = 0;
-          let weekFrequencyExceedances = 0;
-          let weekLengthExceedances = 0;
-          let weekWorkingTime = 0;
-          let weekStartDate = null;
-
-          // Helper function to format the date to a 'Week Number' format
-          function getWeekOfYear(date) {
-            const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-            const daysOfYear = (date - firstDayOfYear) / (24 * 60 * 60 * 1000);
-            return Math.floor(daysOfYear / 7) + 1;  // Return the week number
-          }
-
-          // Process each feed to aggregate data by week
-          data.feeds.forEach(feed => {
-            const date = new Date(feed.created_at);
-            const weekOfYear = getWeekOfYear(date);
-            const loadExceedances = feed.field7 ? parseInt(feed.field7.split(',')[0]) : 0;
-            const frequencyExceedances = feed.field7 ? parseInt(feed.field7.split(',')[1]) : 0;
-            const lengthExceedances = feed.field7 ? parseInt(feed.field7.split(',')[2]) : 0;
-            const totalWorkingTime = feed.field6 ? parseFloat(feed.field6) : 0;
-
-            // Start a new week group if the week has changed
-            if (currentWeek === null || weekOfYear !== currentWeek) {
-              // If it's not the first week, push the previous week's data
-              if (currentWeek !== null) {
-                weeklyData.labels.push(`Week ${currentWeek}`);
-                weeklyData.loadExceedancesData.push(weekLoadExceedances);
-                weeklyData.frequencyExceedancesData.push(weekFrequencyExceedances);
-                weeklyData.lengthExceedancesData.push(weekLengthExceedances);
-                weeklyData.totalWorkingTimeData.push(weekWorkingTime);
-              }
-              // Reset values for the new week
-              currentWeek = weekOfYear;
-              weekLoadExceedances = 0;
-              weekFrequencyExceedances = 0;
-              weekLengthExceedances = 0;
-              weekWorkingTime = 0;
-              weekStartDate = date;
-            }
-
-            // Aggregate data for the current week
-            weekLoadExceedances += loadExceedances;
-            weekFrequencyExceedances += frequencyExceedances;
-            weekLengthExceedances += lengthExceedances;
-            weekWorkingTime += totalWorkingTime;
+          // Calculate total working time and exceedances over the past week
+          data.feeds.forEach(entry => {
+            weeklyWorkingTime += parseFloat(entry.field6); // Working time
+            weeklyLoadExceedances += parseInt(entry.field7.split(',')[0]); // Load exceedances
+            weeklyFrequencyExceedances += parseInt(entry.field7.split(',')[1]); // Frequency exceedances
+            weeklyLengthExceedances += parseInt(entry.field7.split(',')[2]); // Length exceedances
           });
 
-          // Add the last week data after the loop
-          if (currentWeek !== null) {
-            weeklyData.labels.push(`Week ${currentWeek}`);
-            weeklyData.loadExceedancesData.push(weekLoadExceedances);
-            weeklyData.frequencyExceedancesData.push(weekFrequencyExceedances);
-            weeklyData.lengthExceedancesData.push(weekLengthExceedances);
-            weeklyData.totalWorkingTimeData.push(weekWorkingTime);
-          }
-
-          // Render the chart with aggregated weekly data
-          new Chart(document.getElementById('weeklyReportChart'), {
-            type: 'line',
-            data: {
-              labels: weeklyData.labels,
-              datasets: [
-                {
-                  label: 'Load Exceedances',
-                  data: weeklyData.loadExceedancesData,
-                  borderColor: 'red',
-                  fill: false
-                },
-                {
-                  label: 'Frequency Exceedances',
-                  data: weeklyData.frequencyExceedancesData,
-                  borderColor: 'blue',
-                  fill: false
-                },
-                {
-                  label: 'Length Exceedances',
-                  data: weeklyData.lengthExceedancesData,
-                  borderColor: 'green',
-                  fill: false
-                },
-                {
-                  label: 'Working Time (Hours)',
-                  data: weeklyData.totalWorkingTimeData,
-                  borderColor: 'purple',
-                  fill: false,
-                  yAxisID: 'y-axis-2'
-                }
-              ]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: 'Week'
-                  }
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: 'Exceedances'
-                  }
-                },
-                'y-axis-2': {
-                  type: 'linear',
-                  position: 'right',
-                  title: {
-                    display: true,
-                    text: 'Working Time (hrs)'
-                  },
-                  grid: {
-                    drawOnChartArea: false
-                  }
-                }
-              }
-            }
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching data for weekly report:', error);
+          // Update the page with the weekly data
+          document.getElementById('weeklyWorkingTime').innerText = (weeklyWorkingTime / 3600).toFixed(2); // Convert seconds to hours
+          document.getElementById('weeklyLoadExceedances').innerText = weeklyLoadExceedances;
+          document.getElementById('weeklyFrequencyExceedances').innerText = weeklyFrequencyExceedances;
+          document.getElementById('weeklyLengthExceedances').innerText = weeklyLengthExceedances;
         });
     }
 
-    // Call the function to render the weekly report chart
-    renderWeeklyReportChart();
+    // Event listener for "Back to Dashboard" button
+    document.getElementById('backToDashboardButton').addEventListener('click', function() {
+      window.location.href = 'index.html'; // Navigate back to the main dashboard
+    });
+
+    // Initial fetch when the page loads
+    fetchWeeklyData();
   </script>
 </body>
 </html>
