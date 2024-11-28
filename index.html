@@ -53,22 +53,24 @@
             line-height: 1.8;
         }
 
-        /* Card-like design for iframes (Widgets) */
+        /* Iframe container */
         .iframe-container {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 30px;
+            display: flex; /* Flex layout */
+            justify-content: center; /* Center widgets horizontally */
+            flex-wrap: wrap; /* Allow items to wrap onto the next line */
+            gap: 30px; /* Space between the items */
             margin-top: 40px;
         }
 
+        /* Widget card styles */
         .widget-card {
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            flex-basis: 22%;
+            flex: 1 1 250px; /* Allow widgets to grow, shrink, and have a base width of 250px */
+            max-width: 22%; /* Ensure they don't stretch too wide on larger screens */
             position: relative;
             overflow: hidden;
         }
@@ -141,7 +143,7 @@
             }
 
             .widget-card {
-                width: 100%;
+                flex: 1 1 100%; /* Make each widget take full width on smaller screens */
                 max-width: 100%;
                 margin-bottom: 20px;
             }
@@ -169,13 +171,13 @@
             }
 
             .widget-card {
-                width: 100%;
+                flex: 1 1 100%; /* Full-width widgets on very small screens */
                 max-width: 100%;
                 margin-bottom: 20px;
             }
 
             .matlab-iframe {
-                height: 400px;
+                height: 400px; /* Smaller height for MATLAB iframe */
             }
 
             h2 {
