@@ -3,35 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sensor Data Visualizations</title>
+    <title>Bridge Structure Monitoring System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         /* General body styles */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f7fc;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 0;
             color: #333;
             text-align: center;
         }
 
-        /* Header styles */
+        /* Header Section */
         header {
-            background-color: #007BFF;
-            color: white;
-            padding: 20px;
-            font-size: 2em;
-            font-weight: bold;
+            background-color: #4b5e6d; /* Dark Blue */
+            color: #fff;
+            padding: 30px;
+            font-size: 2.5em;
+            font-weight: 500;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         /* Main container styles */
         .container {
             max-width: 1200px;
-            margin: 20px auto;
+            margin: 50px auto;
             padding: 20px;
         }
 
-        /* Section for embedding visualizations */
+        /* Subheading */
+        h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 40px;
+        }
+
+        /* Card-like design for iframes (Widgets) */
         .iframe-container {
             display: flex;
             justify-content: space-around;
@@ -40,46 +55,63 @@
             margin-top: 30px;
         }
 
-        /* Individual iframe style for ThingSpeak widgets */
-        iframe {
-            border: none;
+        .widget-card {
+            background-color: #fff;
+            border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        iframe:hover {
+        .widget-card:hover {
             transform: scale(1.05);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
-        /* Specific iframe sizes for responsiveness */
-        .widget {
+        .widget-card iframe {
             width: 100%;
-            max-width: 480px;
+            border: none;
             height: 280px;
+            border-radius: 8px;
         }
 
-        /* Section for the MATLAB Visualization */
+        /* Icons for titles */
+        .icon {
+            font-size: 2em;
+            color: #f1c40f; /* Safety yellow */
+            margin-right: 10px;
+        }
+
+        /* MATAL Visualization Section */
         .matlab-container {
             margin-top: 50px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .matlab-container h3 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
         }
 
         .matlab-iframe {
             width: 100%;
             height: 600px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* Responsive styles */
+        /* Responsive Styles */
         @media (max-width: 768px) {
             .iframe-container {
                 flex-direction: column;
                 align-items: center;
             }
 
-            .widget {
+            .widget-card {
                 width: 100%;
                 max-width: 100%;
                 margin-bottom: 20px;
@@ -95,29 +127,53 @@
 
     <!-- Header -->
     <header>
-        Sensor Data Visualizations
+        Bridge Structure Monitoring System
     </header>
 
-    <!-- Main Content Container -->
+    <!-- Main Content -->
     <div class="container">
-        <h2>Real-Time Sensor Data</h2>
-        <p>Below you can view live data from your sensors, including load, frequency, deflection, and a custom MATLAB visualization chart.</p>
-        
-        <!-- Widgets Embedding Section -->
+        <h2>Real-Time Data Monitoring</h2>
+        <p>Monitor key parameters of your bridge structure, such as load, frequency, deflection, and get detailed analysis with MATLAB visualizations.</p>
+
+        <!-- Widgets for Monitoring -->
         <div class="iframe-container">
             <!-- Load Widget -->
-            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979734" class="widget" title="Load Value"></iframe>
+            <div class="widget-card">
+                <div class="widget-title">
+                    <span class="icon">⚖️</span>
+                    <strong>Load Monitoring</strong>
+                </div>
+                <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979734" title="Load Value"></iframe>
+            </div>
             <!-- Frequency Widget -->
-            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979735" class="widget" title="Frequency"></iframe>
+            <div class="widget-card">
+                <div class="widget-title">
+                    <span class="icon">🔊</span>
+                    <strong>Frequency Monitoring</strong>
+                </div>
+                <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979735" title="Frequency"></iframe>
+            </div>
             <!-- Deflection Left Widget -->
-            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" class="widget" title="Deflection Left"></iframe>
+            <div class="widget-card">
+                <div class="widget-title">
+                    <span class="icon">↔️</span>
+                    <strong>Deflection Left</strong>
+                </div>
+                <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" title="Deflection Left"></iframe>
+            </div>
             <!-- Deflection Right Widget -->
-            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979737" class="widget" title="Deflection Right"></iframe>
+            <div class="widget-card">
+                <div class="widget-title">
+                    <span class="icon">↕️</span>
+                    <strong>Deflection Right</strong>
+                </div>
+                <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979737" title="Deflection Right"></iframe>
+            </div>
         </div>
 
         <!-- MATLAB Visualization Section -->
         <div class="matlab-container">
-            <h3>Load vs Deflection Chart (MATLAB Visualization)</h3>
+            <h3>Load vs Deflection Analysis</h3>
             <iframe src="https://thingspeak.mathworks.com/apps/matlab_visualizations/592729?height=auto&width=auto" class="matlab-iframe" title="MATLAB Visualization"></iframe>
         </div>
     </div>
