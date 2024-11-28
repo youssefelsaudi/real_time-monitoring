@@ -5,45 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sensor Data Visualizations</title>
     <style>
-        /* Simple CSS to ensure that the page looks clean and well-aligned */
+        /* General body styles */
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
             padding: 0;
-        }
-        h1 {
             color: #333;
+            text-align: center;
         }
+
+        /* Header styles */
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        /* Main container styles */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        /* Section for embedding visualizations */
         .iframe-container {
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
             gap: 20px;
-            margin-top: 20px;
+            margin-top: 30px;
         }
+
+        /* Individual iframe style for ThingSpeak widgets */
         iframe {
-            border: 1px solid #ccc;
-            width: 450px;
-            height: 260px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        iframe:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Specific iframe sizes for responsiveness */
+        .widget {
+            width: 100%;
+            max-width: 480px;
+            height: 280px;
+        }
+
+        /* Section for the MATLAB Visualization */
+        .matlab-container {
+            margin-top: 50px;
+        }
+
+        .matlab-iframe {
+            width: 100%;
+            height: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .iframe-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .widget {
+                width: 100%;
+                max-width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .matlab-iframe {
+                height: 500px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <h1>Sensor Data Visualizations</h1>
-    
-    <!-- Embed ThingSpeak Widgets for Load, Frequency, and Deflection -->
-    <div class="iframe-container">
-        <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979734" title="Load Value"></iframe>
-        <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979735" title="Frequency"></iframe>
-        <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" title="Deflection Left"></iframe>
-        <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979737" title="Deflection Right"></iframe>
-    </div>
-    
-    <!-- Embed MATLAB Visualization Chart -->
-    <div style="margin-top: 30px;">
-        <iframe src="https://thingspeak.mathworks.com/apps/matlab_visualizations/592729?height=auto&width=auto" style="width: 100%; height: 600px;" title="MATLAB Visualization"></iframe>
+    <!-- Header -->
+    <header>
+        Sensor Data Visualizations
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="container">
+        <h2>Real-Time Sensor Data</h2>
+        <p>Below you can view live data from your sensors, including load, frequency, deflection, and a custom MATLAB visualization chart.</p>
+        
+        <!-- Widgets Embedding Section -->
+        <div class="iframe-container">
+            <!-- Load Widget -->
+            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979734" class="widget" title="Load Value"></iframe>
+            <!-- Frequency Widget -->
+            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979735" class="widget" title="Frequency"></iframe>
+            <!-- Deflection Left Widget -->
+            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" class="widget" title="Deflection Left"></iframe>
+            <!-- Deflection Right Widget -->
+            <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979737" class="widget" title="Deflection Right"></iframe>
+        </div>
+
+        <!-- MATLAB Visualization Section -->
+        <div class="matlab-container">
+            <h3>Load vs Deflection Chart (MATLAB Visualization)</h3>
+            <iframe src="https://thingspeak.mathworks.com/apps/matlab_visualizations/592729?height=auto&width=auto" class="matlab-iframe" title="MATLAB Visualization"></iframe>
+        </div>
     </div>
 
 </body>
