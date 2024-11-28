@@ -6,79 +6,177 @@
   <title>Weekly Report</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* General body styles */
     body {
-      font-family: Arial, sans-serif;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        text-align: center;
+        line-height: 1.6;
     }
+
+    /* Header Section */
+    header {
+        background-color: #3a4f63; /* Darker Blue for contrast */
+        color: #fff;
+        padding: 40px 20px;
+        font-size: 3em;
+        font-weight: 500;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* Main container styles */
+    .container {
+        max-width: 1200px;
+        margin: 50px auto;
+        padding: 20px;
+        color: #333;
+    }
+
+    /* Subheading */
+    h2 {
+        font-size: 2.5em;
+        color: #3a4f63;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    p {
+        font-size: 1.1em;
+        color: #555;
+        margin-bottom: 40px;
+        line-height: 1.8;
+    }
+
+    /* Table styling for real-time data and exceedances */
+    table {
+        margin: 20px auto;
+        border-collapse: collapse;
+        width: 80%;
+    }
+
+    table th, table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    table th {
+        background-color: #4b5e6d; /* Dark Blue */
+        color: #fff;
+    }
+
+    /* Button styles */
     button {
-      padding: 10px 20px;
-      margin: 20px 0;
-      font-size: 16px;
-      cursor: pointer;
+        padding: 10px 20px;
+        margin: 20px 0;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #3a4f63;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
     }
+
+    button:hover {
+        background-color: #2c3e50;
+    }
+
   </style>
 </head>
 <body>
-  <h1>Weekly Report</h1>
+  <header>
+    <h1>Weekly Report</h1>
+  </header>
 
-  <div>
+  <div class="container">
     <h2>Working Hours</h2>
     <p>Total working time over the past week: <span id="weeklyWorkingTime">Loading...</span> hours</p>
-  </div>
 
-  <div>
     <h2>Sensor Threshold Exceedances</h2>
     <table>
       <tr>
-        <td>Load Exceedances:</td>
+        <th>Load Exceedances:</th>
         <td id="weeklyLoadExceedances">Loading...</td>
       </tr>
       <tr>
-        <td>Frequency Exceedances:</td>
+        <th>Frequency Exceedances:</th>
         <td id="weeklyFrequencyExceedances">Loading...</td>
       </tr>
       <tr>
-        <td>Length Exceedances:</td>
+        <th>Length Exceedances:</th>
         <td id="weeklyLengthExceedances">Loading...</td>
       </tr>
     </table>
+
+    <h2>Sensor Data Overview</h2>
+    <canvas id="sensorChart" width="600" height="400"></canvas>
+    
+    <button onclick="window.location.href='index.html'">Back to Dashboard</button>
   </div>
 
-  <button id="backToDashboardButton">Back to Dashboard</button>
-
   <script>
-    // Fetch weekly report data and update the page
-    function fetchWeeklyData() {
+    // Fetch weekly report data from API
+    function fetchWeeklyReportData() {
       fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
         .then(response => response.json())
         .then(data => {
-          let weeklyWorkingTime = 0;
-          let weeklyLoadExceedances = 0;
-          let weeklyFrequencyExceedances = 0;
-          let weeklyLengthExceedances = 0;
+          const weeklyData = data.feeds; // You may need to filter this based on the past week's data
+          let totalWorkingTime = 0;
+          let loadExceedances = 0;
+          let frequencyExceedances = 0;
+          let lengthExceedances = 0;
+          let labels = [];
 
-          // Calculate total working time and exceedances over the past week
-          data.feeds.forEach(entry => {
-            weeklyWorkingTime += parseFloat(entry.field6); // Working time
-            weeklyLoadExceedances += parseInt(entry.field7.split(',')[0]); // Load exceedances
-            weeklyFrequencyExceedances += parseInt(entry.field7.split(',')[1]); // Frequency exceedances
-            weeklyLengthExceedances += parseInt(entry.field7.split(',')[2]); // Length exceedances
+          weeklyData.forEach(entry => {
+            totalWorkingTime += parseFloat(entry.field6);
+            loadExceedances += parseInt(entry.field7);
+            frequencyExceedances += parseInt(entry.field8);
+            lengthExceedances += parseInt(entry.field9);
+            labels.push(entry.created_at);
           });
 
-          // Update the page with the weekly data
-          document.getElementById('weeklyWorkingTime').innerText = (weeklyWorkingTime / 3600).toFixed(2); // Convert seconds to hours
-          document.getElementById('weeklyLoadExceedances').innerText = weeklyLoadExceedances;
-          document.getElementById('weeklyFrequencyExceedances').innerText = weeklyFrequencyExceedances;
-          document.getElementById('weeklyLengthExceedances').innerText = weeklyLengthExceedances;
+          // Update weekly report table
+          document.getElementById('weeklyWorkingTime').innerText = totalWorkingTime.toFixed(2);
+          document.getElementById('weeklyLoadExceedances').innerText = loadExceedances;
+          document.getElementById('weeklyFrequencyExceedances').innerText = frequencyExceedances;
+          document.getElementById('weeklyLengthExceedances').innerText = lengthExceedances;
+
+          // Create Chart.js chart
+          const ctx = document.getElementById('sensorChart').getContext('2d');
+          const sensorChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Working Time (hours)',
+                data: weeklyData.map(entry => entry.field6),
+                borderColor: '#3a4f63',
+                fill: false
+              }]
+            },
+            options: {
+              scales: {
+                x: { 
+                  type: 'time',
+                  time: {
+                    unit: 'day'
+                  }
+                }
+              }
+            }
+          });
         });
     }
 
-    // Event listener for "Back to Dashboard" button
-    document.getElementById('backToDashboardButton').addEventListener('click', function() {
-      window.location.href = 'index.html'; // Navigate back to the main dashboard
-    });
-
-    // Initial fetch when the page loads
-    fetchWeeklyData();
+    // Fetch data when the page loads
+    fetchWeeklyReportData();
   </script>
 </body>
 </html>
