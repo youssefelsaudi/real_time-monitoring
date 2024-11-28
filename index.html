@@ -56,12 +56,9 @@
         /* Iframe container */
         .iframe-container {
             display: flex;
-            justify-content: center; /* Center widgets horizontally */
-            align-items: center; /* Center widgets vertically */
-            flex-wrap: wrap; /* Allow widgets to wrap on smaller screens */
+            flex-wrap: wrap; /* Allow wrapping of the widgets */
             gap: 30px; /* Space between widgets */
-            margin-top: 40px;
-            justify-content: space-around; /* This makes sure they are spaced evenly */
+            justify-content: center; /* Center the widgets */
         }
 
         /* Widget card styles */
@@ -71,8 +68,7 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            width: 100%; /* Make the widgets responsive */
-            max-width: 350px; /* Max width for large screens */
+            width: 48%; /* Each widget takes up 48% of the row width */
             position: relative;
         }
 
@@ -116,7 +112,9 @@
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             width: 100%; /* Full width */
-            max-width: 700px; /* Limit max-width */
+            max-width: 1000px; /* Limit max-width */
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .matlab-container h3 {
@@ -140,20 +138,18 @@
 
         /* Responsive Styles */
         @media (max-width: 1024px) {
-            .iframe-container {
-                justify-content: center; /* Center widgets on medium screens */
-            }
-
             .widget-card {
-                max-width: 90%; /* Allow widgets to take up 90% of the screen on medium screens */
+                width: 100%; /* Widgets take full width on tablets */
+                max-width: 100%;
+                margin-bottom: 20px;
             }
 
             .matlab-container {
-                max-width: 100%; /* Allow MATLAB container to stretch */
+                max-width: 100%;
             }
 
             .matlab-iframe {
-                height: 280px; /* Maintain same height for all widgets */
+                height: 280px; /* Maintain the height consistency */
             }
         }
 
@@ -170,18 +166,18 @@
             }
 
             .iframe-container {
-                flex-direction: column; /* 1 column layout on mobile screens */
-                align-items: center; /* Center widgets */
+                flex-direction: column; /* Stack widgets vertically on mobile */
+                align-items: center; /* Center widgets on mobile */
             }
 
             .widget-card {
-                max-width: 100%; /* Make widgets take full width on small screens */
-                margin-bottom: 20px; /* Add margin between widgets on mobile */
+                width: 100%; /* Widgets take full width on small screens */
+                max-width: 100%;
+                margin-bottom: 20px;
             }
 
             .matlab-container {
-                width: 100%; /* Full width for the MATLAB section */
-                max-width: 100%;
+                width: 100%; /* Full width for MATLAB section */
             }
 
             .matlab-iframe {
@@ -208,7 +204,7 @@
 
         <!-- Widgets for Monitoring -->
         <div class="iframe-container">
-            <!-- Load Widget -->
+            <!-- Load and Frequency Widgets (Same Row) -->
             <div class="widget-card">
                 <div class="widget-title">
                     <span class="icon">⚖️</span>
@@ -216,7 +212,6 @@
                 </div>
                 <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979734" title="Load Value"></iframe>
             </div>
-            <!-- Frequency Widget -->
             <div class="widget-card">
                 <div class="widget-title">
                     <span class="icon">🔊</span>
@@ -224,15 +219,17 @@
                 </div>
                 <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979735" title="Frequency"></iframe>
             </div>
-            <!-- Deflection Left Widget -->
+        </div>
+
+        <div class="iframe-container">
+            <!-- Deflection Left and Deflection Right Widgets (Same Row) -->
             <div class="widget-card">
                 <div class="widget-title">
-                    <span class="icon">↕️</span>
+                    <span class="icon">↔️</span>
                     <strong>Deflection Left</strong>
                 </div>
                 <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" title="Deflection Left"></iframe>
             </div>
-            <!-- Deflection Right Widget -->
             <div class="widget-card">
                 <div class="widget-title">
                     <span class="icon">↕️</span>
@@ -240,12 +237,14 @@
                 </div>
                 <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979737" title="Deflection Right"></iframe>
             </div>
-            <!-- MATLAB Graph (placed next to Deflection Right) -->
-            <div class="matlab-container">
-                <h3>Load vs Deflection Analysis</h3>
-                <iframe src="https://thingspeak.mathworks.com/apps/matlab_visualizations/592729?height=auto&width=auto" class="matlab-iframe" title="MATLAB Visualization"></iframe>
-            </div>
         </div>
+
+        <!-- MATLAB Graph (Placed below widgets) -->
+        <div class="matlab-container">
+            <h3>Load vs Deflection Analysis</h3>
+            <iframe src="https://thingspeak.mathworks.com/apps/matlab_visualizations/592729?height=auto&width=auto" class="matlab-iframe" title="MATLAB Visualization"></iframe>
+        </div>
+
     </div>
 
 </body>
