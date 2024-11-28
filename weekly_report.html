@@ -3,121 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exceedance Report</title>
+    <title>Weekly Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
     <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+        }
+
         table {
-            width: 100%;
-            border-collapse: collapse;
             margin-top: 20px;
         }
+
         th, td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
+            text-align: center;
         }
-        th {
-            background-color: #f4f4f4;
+
+        td {
+            font-weight: bold;
         }
-        .export-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
+
+        .btn {
+            border-radius: 10px;
         }
-        .export-btn:hover {
-            background-color: #45a049;
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .working-hours-summary {
+            margin-top: 30px;
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .working-hours-summary h4 {
+            font-size: 1.25em;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
+    <div class="container mt-5">
+        <h2>Weekly Report</h2>
 
-    <h1>Exceedance Report</h1>
-    
-    <!-- Add the table -->
-    <table id="exceedanceTable">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Load Exceedances (Yes/No)</th>
-                <th>Frequency Exceedances (Yes/No)</th>
-                <th>Length Exceedances (Yes/No)</th>
-                <th>Total Working Time (hours)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Example data rows -->
-            <tr>
-                <td>2024-11-01</td>
-                <td>Yes</td>
-                <td>No</td>
-                <td>Yes</td>
-                <td>8</td>
-            </tr>
-            <tr>
-                <td>2024-11-02</td>
-                <td>No</td>
-                <td>No</td>
-                <td>No</td>
-                <td>7.5</td>
-            </tr>
-            <tr>
-                <td>2024-11-03</td>
-                <td>Yes</td>
-                <td>Yes</td>
-                <td>No</td>
-                <td>9</td>
-            </tr>
-            <!-- Add more rows as necessary -->
-        </tbody>
-    </table>
-    
-    <!-- Add the Export button -->
-    <button id="exportCSVButton" class="export-btn">Export to CSV</button>
+        <!-- Table to display weekly report -->
+        <table id="weeklyReportTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Total Working Time (hours)</th>
+                    <th>Exceedance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data rows will be populated here via JavaScript -->
+            </tbody>
+        </table>
 
+        <!-- Optional: Add a button to refresh data -->
+        <button class="btn btn-primary mt-3" onclick="fetchWeeklyReportData()">Refresh Data</button>
+
+        <!-- Working hours summary region -->
+        <div class="working-hours-summary">
+            <h4>Total Working Hours per Day</h4>
+            <div id="workingHoursPerDay"></div>
+        </div>
+    </div>
+
+    <!-- Script to fetch and populate data -->
     <script>
-        // Function to export data as CSV
-        function exportToCSV() {
-            let table = document.getElementById('exceedanceTable');
-            let rows = table.getElementsByTagName('tr');
-            
-            let csvContent = '';
-            
-            // Loop through the table rows
-            for (let i = 0; i < rows.length; i++) {
-                let row = rows[i];
-                let cols = row.getElementsByTagName('td');
-                
-                let rowData = [];
-                
-                // If it's not a header row (i.e., rows with actual data)
-                if (cols.length > 0) {
-                    for (let j = 0; j < cols.length; j++) {
-                        rowData.push(cols[j].innerText); // Add the cell data to the rowData array
-                    }
-                    
-                    csvContent += rowData.join(',') + '\n'; // Join the row data with commas and add a newline
-                }
-            }
-            
-            // Create a downloadable CSV file
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'exceedance_report.csv');
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        // Attach the export function to the button click event
-        document.getElementById('exportCSVButton').addEventListener('click', exportToCSV);
-    </script>
+        function fetchWeeklyReportData() {
+            fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
+                .then(response => response.json())
+                .then(data => {
+                    const weeklyData = data.feeds.filter(entry => {
+                        const entryDate = new Date(entry.created_at);
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                        return entryDate >= sevenDaysAgo;
+                    });
 
+                    let totalWorkingTime = 0;
+                    const workingHoursPerDay = {};
+
+                    const tableBody = document.querySelector('#weeklyReportTable tbody');
+                    tableBody.innerHTML = '';
+
+                    // Process each entry
+                    weeklyData.forEach(entry => {
+                        const date = new Date(entry.created_at).toLocaleDateString();
+                        const workingTime = parseFloat(entry.field6);
+                        const loadExceed = parseInt(entry.field7);
+                        const frequencyExceed = parseInt(entry.field8);
+                        const lengthExceed = parseInt(entry.field9);
+
+                        // Update total working hours per day
+                        if (!workingHoursPerDay[date]) {
+                            workingHoursPerDay[date] = 0;
+                        }
+                        workingHoursPerDay[date] += workingTime;
+                        totalWorkingTime += workingTime;
+
+                        // Add row only if there is an exceedance
+                        if (loadExceed > 0 || frequencyExceed > 0 || lengthExceed > 0) {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${date}</td>
+                                <td>${workingTime.toFixed(2)}</td>
+                                <td>
+                                    ${loadExceed > 0 ? `Load: ${loadExceed} ` : ''}
+                                    ${frequencyExceed > 0 ? `Frequency: ${frequencyExceed} ` : ''}
+                                    ${lengthExceed > 0 ? `Length: ${lengthExceed}` : ''}
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        }
+                    });
+
+                    // Display total working hours per day in the summary region
+                    const workingHoursDiv = document.querySelector('#workingHoursPerDay');
+                    workingHoursDiv.innerHTML = '';
+                    Object.keys(workingHoursPerDay).forEach(date => {
+                        const workingHours = workingHoursPerDay[date].toFixed(2);
+                        workingHoursDiv.innerHTML += `<p><strong>${date}:</strong> ${workingHours} hours</p>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching the data:', error);
+                });
+        }
+
+        window.onload = fetchWeeklyReportData;
+    </script>
 </body>
 </html>
