@@ -55,11 +55,13 @@
 
         /* Iframe container */
         .iframe-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Grid layout for responsive columns */
+            display: flex;
+            justify-content: center; /* Center widgets horizontally */
+            align-items: center; /* Center widgets vertically */
+            flex-wrap: wrap; /* Allow widgets to wrap on smaller screens */
             gap: 30px; /* Space between widgets */
             margin-top: 40px;
-            justify-items: center; /* Center items in the grid */
+            justify-content: space-around; /* This makes sure they are spaced evenly */
         }
 
         /* Widget card styles */
@@ -137,11 +139,11 @@
         /* Responsive Styles */
         @media (max-width: 1024px) {
             .iframe-container {
-                grid-template-columns: 1fr 1fr; /* 2 columns layout on medium screens */
+                justify-content: center; /* Center widgets on medium screens */
             }
 
             .widget-card {
-                max-width: 100%; /* Make widgets 100% width on medium screens */
+                max-width: 90%; /* Allow widgets to take up 90% of the screen on medium screens */
             }
 
             .matlab-iframe {
@@ -162,15 +164,17 @@
             }
 
             .iframe-container {
-                grid-template-columns: 1fr; /* 1 column layout on smaller screens */
+                flex-direction: column; /* 1 column layout on mobile screens */
+                align-items: center; /* Center widgets */
             }
 
             .widget-card {
-                max-width: 100%; /* Make widgets take full width */
+                max-width: 100%; /* Make widgets take full width on small screens */
+                margin-bottom: 20px; /* Add margin between widgets on mobile */
             }
 
             .matlab-iframe {
-                height: 400px; /* Smaller height for MATLAB iframe */
+                height: 400px;
             }
 
             h2 {
