@@ -6,85 +6,114 @@
     <title>Bridge Structure Monitoring System</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* Base styles */
-        body {
-            font-family: 'Roboto', sans-serif; /* Set font family */
-            margin: 0; /* Remove default margin */
-            padding: 0; /* Remove default padding */
-            background-color: #f4f4f4; /* Light background color */
-            color: #333; /* Darker text color for readability */
-        }
+       /* Base styles /
+body {
+font-family: 'Roboto', sans-serif; / Set font family /
+margin: 0; / Remove default margin /
+padding: 0; / Remove default padding /
+background-color: #f4f4f4; / Light background color /
+color: #333; / Darker text color for readability */
+}
 
-        /* Header styles */
-        header {
-            background-color: #0056b3; /* Blue header background */
-            color: white; /* White text color */
-            padding: 20px; /* Padding around the header */
-            text-align: center; /* Centered text */
-            font-size: 24px; /* Larger font size */
-        }
+/* Header styles /
+header {
+background-color: #0056b3; / Blue header background /
+color: white; / White text color /
+padding: 20px; / Padding around the header /
+text-align: center; / Centered text /
+font-size: 24px; / Larger font size */
+}
 
-        /* Container for main content */
-        .container {
-            max-width: 1200px; /* Max width for larger screens */
-            margin: 20px auto; /* Centered with auto margins */
-            padding: 20px; /* Padding inside the container */
-            background-color: white; /* White background for content */
-            border-radius: 8px; /* Rounded corners */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-        }
+/* Container for main content /
+.container {
+max-width: 1200px; / Max width for larger screens /
+margin: 20px auto; / Centered with auto margins /
+padding: 20px; / Padding inside the container /
+background-color: white; / White background for content /
+border-radius: 8px; / Rounded corners /
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); / Subtle shadow for depth */
+}
 
-        /* Headings */
-        h2 {
-            color: #0056b3; /* Blue color for main headings */
-            margin-bottom: 10px; /* Space below the heading */
-        }
+/* Headings /
+h2 {
+color: #0056b3; / Blue color for main headings /
+margin-bottom: 10px; / Space below the heading */
+}
 
-        h3 {
-            color: #333; /* Darker color for subheadings */
-        }
+h3 {
+color: #333; /* Darker color for subheadings */
+}
 
-        /* Paragraph styles */
-        p {
-            line-height: 1.6; /* Better line spacing */
-            margin-bottom: 20px; /* Space below paragraphs */
-        }
+/* Paragraph styles /
+p {
+line-height: 1.6; / Better line spacing /
+margin-bottom: 20px; / Space below paragraphs */
+}
 
-        /* Iframe container */
-        .iframe-container {
-            display: grid; /* Using grid for layout */
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive grid */
-            gap: 20px; /* Space between grid items */
-            margin-bottom: 20px; /* Space below the container */
-        }
+/* Iframe container /
+.iframe-container {
+display: grid; / Using grid for layout /
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); / Responsive grid /
+gap: 20px; / Space between grid items /
+margin-bottom: 20px; / Space below the container */
+}
 
-        /* Widget card styles */
-        .widget-card {
-            background-color: #e9ecef; /* Light grey background for cards */
-            border-radius: 5px; /* Rounded corners */
-            overflow: hidden; /* Ensure no overflow */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-        }
+/* Widget card styles /
+.widget-card {
+background-color: #e9ecef; / Light grey background for cards /
+border-radius: 5px; / Rounded corners /
+overflow: hidden; / Ensure no overflow /
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); / Subtle shadow for depth */
+}
 
-        .widget-title {
-            background-color: #007bff; /* Blue background for title */
-            color: white; /* White text for title */
-            padding: 10px; /* Padding for title */
-            display: flex; /* Flex for icon and text */
-            align-items: center; /* Center items vertically */
-        }
+.widget-title {
+background-color: #007bff; /* Blue background for title /
+color: white; / White text for title /
+padding: 10px; / Padding for title /
+display: flex; / Flex for icon and text /
+align-items: center; / Center items vertically */
+}
 
-        .widget-title .icon {
-            margin-right: 10px; /* Space between icon and text */
-            font-size: 20px; /* Larger icon size */
-        }
+.widget-title .icon {
+margin-right: 10px; /* Space between icon and text /
+font-size: 20px; / Larger icon size */
+}
 
-        .widget-card iframe {
-            width: 100%; /* Full width of the card */
-            height: 200px; /* Fixed height for the iframe */
-            border: none; /* No border */
-        }
+.widget-card iframe {
+width: 100%; /* Full width of the card /
+height: 200px; / Fixed height for the iframe /
+border: none; / No border */
+}
 
+/* MATLAB Visualization Section /
+.matlab-container {
+margin-top: 20px; / Space above the section */
+}
+
+.matlab-iframe {
+width: 100%; /* Full width of the container /
+height: 400px; / Height for MATLAB visualization /
+border: none; / No border */
+}
+
+/* Responsive adjustments /
+@media (max-width: 768px) {
+.container {
+padding: 10px; / Reduced padding for smaller screens */
+}
+
+h2 {
+font-size: 20px; /* Smaller font for headings */
+}
+
+.widget-card iframe {
+height: 150px; /* Smaller height for iframes */
+}
+
+.matlab-iframe {
+height: 300px; /* Smaller height for MATLAB visualization */
+}
+}
         /* MATLAB Visualization Section */
         .matlab-container {
             margin-top: 20px; /* Space above the section */
