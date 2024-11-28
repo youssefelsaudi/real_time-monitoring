@@ -1,171 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sensor Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* General body styles */
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f4f6f9;
-        margin: 0;
-        padding: 0;
-        color: #333;
-        text-align: center;
-        line-height: 1.6;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    /* Header Section */
-    header {
-        background-color: #3a4f63; /* Darker Blue for contrast */
-        color: #fff;
-        padding: 40px 20px;
-        font-size: 3em;
-        font-weight: 500;
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
 
-    /* Main container styles */
-    .container {
-        max-width: 1200px;
-        margin: 50px auto;
-        padding: 20px;
-        color: #333;
-    }
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+        }
 
-    /* Subheading */
-    h2 {
-        font-size: 2.5em;
-        color: #3a4f63;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
+        table {
+            margin-top: 20px;
+        }
 
-    p {
-        font-size: 1.1em;
-        color: #555;
-        margin-bottom: 40px;
-        line-height: 1.8;
-    }
+        th, td {
+            text-align: center;
+        }
 
-    /* Table styling for real-time data and exceedances */
-    table {
-        margin: 20px auto;
-        border-collapse: collapse;
-        width: 80%;
-    }
+        td {
+            font-weight: bold;
+        }
 
-    table th, table td {
-        padding: 10px;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
+        .btn {
+            border-radius: 10px;
+        }
 
-    table th {
-        background-color: #4b5e6d; /* Dark Blue */
-        color: #fff;
-    }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
 
-    /* Button styles */
-    button {
-        padding: 10px 20px;
-        margin: 20px 0;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #3a4f63;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-    }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
 
-    button:hover {
-        background-color: #2c3e50;
-    }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
 
-  </style>
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .working-hours-summary {
+            margin-top: 30px;
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .working-hours-summary h4 {
+            font-size: 1.25em;
+            margin-bottom: 15px;
+        }
+
+        .real-time-card {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .real-time-card h5 {
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-container {
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #chartContainer {
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Sensor Data Dashboard</h1>
-  </header>
+    <div class="container mt-5">
+        <h2>Weekly Report</h2>
 
-  <div class="container">
-    <h2>Real-Time Data</h2>
-    <table>
-      <tr>
-        <th>Load Value:</th>
-        <td id="loadValue">Loading...</td>
-      </tr>
-      <tr>
-        <th>Frequency:</th>
-        <td id="frequency">Loading...</td>
-      </tr>
-      <tr>
-        <th>Potentiometer 1 Length:</th>
-        <td id="length1">Loading...</td>
-      </tr>
-      <tr>
-        <th>Potentiometer 2 Length:</th>
-        <td id="length2">Loading...</td>
-      </tr>
-    </table>
+        <!-- Real-Time Monitoring Cards -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="real-time-card">
+                    <h5>Total Working Time (hours)</h5>
+                    <div id="workingTimeDisplay">0</div>
+                    <div class="progress-bar-container">
+                        <div id="workingTimeProgressBar" class="progress-bar bg-info" style="width: 0;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="real-time-card">
+                    <h5>Load Exceedance</h5>
+                    <div id="loadExceedDisplay">0</div>
+                    <div class="progress-bar-container">
+                        <div id="loadExceedProgressBar" class="progress-bar bg-warning" style="width: 0;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="real-time-card">
+                    <h5>Frequency Exceedance</h5>
+                    <div id="frequencyExceedDisplay">0</div>
+                    <div class="progress-bar-container">
+                        <div id="frequencyExceedProgressBar" class="progress-bar bg-danger" style="width: 0;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <h2>Sensor Threshold Exceedances</h2>
-    <table>
-      <tr>
-        <th>Load Exceedances:</th>
-        <td id="loadExceedances">Loading...</td>
-      </tr>
-      <tr>
-        <th>Frequency Exceedances:</th>
-        <td id="frequencyExceedances">Loading...</td>
-      </tr>
-      <tr>
-        <th>Length Exceedances:</th>
-        <td id="lengthExceedances">Loading...</td>
-      </tr>
-    </table>
+        <!-- Chart for Visualization -->
+        <div id="chartContainer">
+            <canvas id="workingHoursChart"></canvas>
+        </div>
 
-    <h2>Working Time</h2>
-    <p>Total Working Time: <span id="totalWorkingTime">Loading...</span> hours</p>
+        <!-- Table to display weekly report -->
+        <table id="weeklyReportTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Total Working Time (hours)</th>
+                    <th>Exceedance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data rows will be populated here via JavaScript -->
+            </tbody>
+        </table>
 
-    <button id="viewWeeklyReportButton">View Weekly Report</button>
-  </div>
+        <!-- Export Button -->
+        <button class="btn btn-primary mt-3" id="exportButton">Export to CSV</button>
 
-  <script>
-    // Fetch real-time data and update the table
-    function fetchData() {
-      fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
-        .then(response => response.json())
-        .then(data => {
-          const latestEntry = data.feeds[data.feeds.length - 1];
-          document.getElementById('loadValue').innerText = latestEntry.field1;
-          document.getElementById('frequency').innerText = latestEntry.field2;
-          document.getElementById('length1').innerText = latestEntry.field4;
-          document.getElementById('length2').innerText = latestEntry.field5;
-          document.getElementById('loadExceedances').innerText = latestEntry.field7;
-          document.getElementById('frequencyExceedances').innerText = latestEntry.field8;
-          document.getElementById('lengthExceedances').innerText = latestEntry.field9;
-          document.getElementById('totalWorkingTime').innerText = latestEntry.field6;
-        });
-    }
+        <!-- Return to Main Page Button -->
+        <button class="btn btn-secondary mt-3" id="returnButton">Return to Main Page</button>
 
-    // Event listener for "View Weekly Report" button
-    document.getElementById('viewWeeklyReportButton').addEventListener('click', function() {
-      window.location.href = 'weekly_report.html'; // Navigate to weekly_report.html
-    });
+        <!-- Optional: Add a button to refresh data -->
+        <button class="btn btn-primary mt-3" onclick="fetchWeeklyReportData()">Refresh Data</button>
 
-    // Fetch data every 10 seconds
-    setInterval(fetchData, 10000);
+        <!-- Working hours summary region -->
+        <div class="working-hours-summary">
+            <h4>Total Working Hours per Day</h4>
+            <div id="workingHoursPerDay"></div>
+        </div>
+    </div>
 
-    // Initial fetch when the page loads
-    fetchData();
-  </script>
+    <!-- Script to fetch and populate data -->
+    <script>
+        function fetchWeeklyReportData() {
+            fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
+                .then(response => response.json())
+                .then(data => {
+                    const weeklyData = data.feeds.filter(entry => {
+                        const entryDate = new Date(entry.created_at);
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                        return entryDate >= sevenDaysAgo;
+                    });
+
+                    let totalWorkingTime = 0;
+                    let loadExceed = 0;
+                    let frequencyExceed = 0;
+                    const workingHoursPerDay = {};
+
+                    const tableBody = document.querySelector('#weeklyReportTable tbody');
+                    tableBody.innerHTML = '';
+
+                    // Process each entry
+                    weeklyData.forEach(entry => {
+                        const date = new Date(entry.created_at).toLocaleDateString();
+                        const workingTime = parseFloat(entry.field6);
+                        loadExceed += parseInt(entry.field7);
+                        frequencyExceed += parseInt(entry.field8);
+
+                        // Update total working hours per day
+                        if (!workingHoursPerDay[date]) {
+                            workingHoursPerDay[date] = 0;
+                        }
+                        workingHoursPerDay[date] += workingTime;
+                        totalWorkingTime += workingTime;
+
+                        // Add row only if there is an exceedance
+                        if (loadExceed > 0 || frequencyExceed > 0) {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${date}</td>
+                                <td>${workingTime.toFixed(2)}</td>
+                                <td>
+                                    ${loadExceed > 0 ? `Load: ${loadExceed} ` : ''} 
+                                    ${frequencyExceed > 0 ? `Frequency: ${frequencyExceed} ` : ''}
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        }
+                    });
+
+                    // Display total working hours per day in the summary region
+                    const workingHoursDiv = document.querySelector('#workingHoursPerDay');
+                    workingHoursDiv.innerHTML = '';
+                    Object.keys(workingHoursPerDay).forEach(date => {
+                        const workingHours = workingHoursPerDay[date].toFixed(2);
+                        workingHoursDiv.innerHTML += `<p><strong>${date}:</strong> ${workingHours} hours</p>`;
+                    });
+
+                    // Update Real-time Data
+                    document.getElementById('workingTimeDisplay').textContent = totalWorkingTime.toFixed(2);
+                    document.getElementById('workingTimeProgressBar').style.width = `${Math.min((totalWorkingTime / 40) * 100, 100)}%`;  // Assuming 40 hours is the max
+
+                    document.getElementById('loadExceedDisplay').textContent = loadExceed;
+                    document.getElementById('loadExceedProgressBar').style.width = `${Math.min((loadExceed / 10) * 100, 100)}%`;  // Assuming 10 is the max for load exceedance
+
+                    document.getElementById('frequencyExceedDisplay').textContent = frequencyExceed;
+                    document.getElementById('frequencyExceedProgressBar').style.width = `${Math.min((frequencyExceed / 10) * 100, 100)}%`;  // Assuming 10 is the max for frequency exceedance
+
+                    // Chart Visualization
+                    const ctx = document.getElementById('workingHoursChart').getContext('2d');
+                    const labels = Object.keys(workingHoursPerDay);
+                    const data = labels.map(date => workingHoursPerDay[date].toFixed(2));
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Working Hours',
+                                data: data,
+                                borderColor: '#007bff',
+                                fill: false,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Date'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Hours'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching the data:', error);
+                });
+        }
+
+        // Export to CSV function (same as before)
+        function exportToCSV() {
+            const table = document.getElementById('weeklyReportTable');
+            const rows = table.getElementsByTagName('tr');
+            let csvContent = 'Date,Total Working Time (hours),Exceedance\n';
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                if (cells.length > 0) {
+                    const row = [
+                        cells[0].innerText,
+                        cells[1].innerText,
+                        cells[2].innerText
+                    ];
+                    csvContent += row.join(',') + '\n';
+                }
+            }
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'weekly_report.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.onload = fetchWeeklyReportData;
+    </script>
 </body>
 </html>
