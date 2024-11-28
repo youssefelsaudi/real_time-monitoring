@@ -1,182 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weekly Report</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* General body styles */
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f4f6f9;
-        margin: 0;
-        padding: 0;
-        color: #333;
-        text-align: center;
-        line-height: 1.6;
-    }
-
-    /* Header Section */
-    header {
-        background-color: #3a4f63; /* Darker Blue for contrast */
-        color: #fff;
-        padding: 40px 20px;
-        font-size: 3em;
-        font-weight: 500;
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-
-    /* Main container styles */
-    .container {
-        max-width: 1200px;
-        margin: 50px auto;
-        padding: 20px;
-        color: #333;
-    }
-
-    /* Subheading */
-    h2 {
-        font-size: 2.5em;
-        color: #3a4f63;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-
-    p {
-        font-size: 1.1em;
-        color: #555;
-        margin-bottom: 40px;
-        line-height: 1.8;
-    }
-
-    /* Table styling for real-time data and exceedances */
-    table {
-        margin: 20px auto;
-        border-collapse: collapse;
-        width: 80%;
-    }
-
-    table th, table td {
-        padding: 10px;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-
-    table th {
-        background-color: #4b5e6d; /* Dark Blue */
-        color: #fff;
-    }
-
-    /* Button styles */
-    button {
-        padding: 10px 20px;
-        margin: 20px 0;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #3a4f63;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-        background-color: #2c3e50;
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Report</title>
+    <!-- You can include a CSS framework like Bootstrap for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <h1>Weekly Report</h1>
-  </header>
+    <div class="container mt-5">
+        <h2>Weekly Report</h2>
+        
+        <!-- Table to display weekly report -->
+        <table id="weeklyReportTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Total Working Time (hours)</th>
+                    <th>Load Exceedances</th>
+                    <th>Frequency Exceedances</th>
+                    <th>Length Exceedances</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data rows will be populated here via JavaScript -->
+            </tbody>
+        </table>
 
-  <div class="container">
-    <h2>Working Hours</h2>
-    <p>Total working time over the past week: <span id="weeklyWorkingTime">Loading...</span> hours</p>
+        <!-- Optional: Add a button to refresh data -->
+        <button class="btn btn-primary mt-3" onclick="fetchWeeklyReportData()">Refresh Data</button>
+    </div>
 
-    <h2>Sensor Threshold Exceedances</h2>
-    <table>
-      <tr>
-        <th>Load Exceedances:</th>
-        <td id="weeklyLoadExceedances">Loading...</td>
-      </tr>
-      <tr>
-        <th>Frequency Exceedances:</th>
-        <td id="weeklyFrequencyExceedances">Loading...</td>
-      </tr>
-      <tr>
-        <th>Length Exceedances:</th>
-        <td id="weeklyLengthExceedances">Loading...</td>
-      </tr>
-    </table>
+    <!-- Script to fetch and populate data -->
+    <script>
+        function fetchWeeklyReportData() {
+            fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
+                .then(response => response.json())
+                .then(data => {
+                    // Filter the data for the last 7 days
+                    const weeklyData = data.feeds.filter(entry => {
+                        const entryDate = new Date(entry.created_at);
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                        return entryDate >= sevenDaysAgo;
+                    });
 
-    <h2>Sensor Data Overview</h2>
-    <canvas id="sensorChart" width="600" height="400"></canvas>
-    
-    <button onclick="window.location.href='index.html'">Back to Dashboard</button>
-  </div>
+                    let totalWorkingTime = 0;
+                    let loadExceedances = 0;
+                    let frequencyExceedances = 0;
+                    let lengthExceedances = 0;
 
-  <script>
-    // Fetch weekly report data from API
-    function fetchWeeklyReportData() {
-      fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
-        .then(response => response.json())
-        .then(data => {
-          const weeklyData = data.feeds; // You may need to filter this based on the past week's data
-          let totalWorkingTime = 0;
-          let loadExceedances = 0;
-          let frequencyExceedances = 0;
-          let lengthExceedances = 0;
-          let labels = [];
+                    // Empty the table body before adding new data
+                    const tableBody = document.querySelector('#weeklyReportTable tbody');
+                    tableBody.innerHTML = '';
 
-          weeklyData.forEach(entry => {
-            totalWorkingTime += parseFloat(entry.field6);
-            loadExceedances += parseInt(entry.field7);
-            frequencyExceedances += parseInt(entry.field8);
-            lengthExceedances += parseInt(entry.field9);
-            labels.push(entry.created_at);
-          });
+                    // Populate table rows with data
+                    weeklyData.forEach(entry => {
+                        totalWorkingTime += parseFloat(entry.field6);
+                        loadExceedances += parseInt(entry.field7);
+                        frequencyExceedances += parseInt(entry.field8);
+                        lengthExceedances += parseInt(entry.field9);
 
-          // Update weekly report table
-          document.getElementById('weeklyWorkingTime').innerText = totalWorkingTime.toFixed(2);
-          document.getElementById('weeklyLoadExceedances').innerText = loadExceedances;
-          document.getElementById('weeklyFrequencyExceedances').innerText = frequencyExceedances;
-          document.getElementById('weeklyLengthExceedances').innerText = lengthExceedances;
+                        // Create a new table row for each entry
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${new Date(entry.created_at).toLocaleDateString()}</td>
+                            <td>${parseFloat(entry.field6).toFixed(2)}</td>
+                            <td>${parseInt(entry.field7)}</td>
+                            <td>${parseInt(entry.field8)}</td>
+                            <td>${parseInt(entry.field9)}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
 
-          // Create Chart.js chart
-          const ctx = document.getElementById('sensorChart').getContext('2d');
-          const sensorChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: labels,
-              datasets: [{
-                label: 'Working Time (hours)',
-                data: weeklyData.map(entry => entry.field6),
-                borderColor: '#3a4f63',
-                fill: false
-              }]
-            },
-            options: {
-              scales: {
-                x: { 
-                  type: 'time',
-                  time: {
-                    unit: 'day'
-                  }
-                }
-              }
-            }
-          });
-        });
-    }
+                    // Update the totals row at the bottom
+                    const totalsRow = document.createElement('tr');
+                    totalsRow.innerHTML = `
+                        <td><strong>Total</strong></td>
+                        <td><strong>${totalWorkingTime.toFixed(2)}</strong></td>
+                        <td><strong>${loadExceedances}</strong></td>
+                        <td><strong>${frequencyExceedances}</strong></td>
+                        <td><strong>${lengthExceedances}</strong></td>
+                    `;
+                    tableBody.appendChild(totalsRow);
+                })
+                .catch(error => {
+                    console.error('Error fetching the data:', error);
+                });
+        }
 
-    // Fetch data when the page loads
-    fetchWeeklyReportData();
-  </script>
+        // Automatically fetch and populate data when the page loads
+        window.onload = fetchWeeklyReportData;
+    </script>
 </body>
 </html>
