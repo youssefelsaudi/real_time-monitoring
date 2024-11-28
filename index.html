@@ -55,11 +55,11 @@
 
         /* Iframe container */
         .iframe-container {
-            display: flex; /* Flex layout */
-            justify-content: center; /* Center widgets horizontally */
-            flex-wrap: wrap; /* Allow items to wrap onto the next line */
-            gap: 30px; /* Space between the items */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Grid layout for responsive columns */
+            gap: 30px; /* Space between widgets */
             margin-top: 40px;
+            justify-items: center; /* Center items in the grid */
         }
 
         /* Widget card styles */
@@ -69,10 +69,9 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            flex: 1 1 250px; /* Allow widgets to grow, shrink, and have a base width of 250px */
-            max-width: 22%; /* Ensure they don't stretch too wide on larger screens */
+            width: 100%; /* Make the widgets responsive */
+            max-width: 350px; /* Max width for large screens */
             position: relative;
-            overflow: hidden;
         }
 
         .widget-card:hover {
@@ -138,14 +137,11 @@
         /* Responsive Styles */
         @media (max-width: 1024px) {
             .iframe-container {
-                flex-direction: column;
-                align-items: center;
+                grid-template-columns: 1fr 1fr; /* 2 columns layout on medium screens */
             }
 
             .widget-card {
-                flex: 1 1 100%; /* Make each widget take full width on smaller screens */
-                max-width: 100%;
-                margin-bottom: 20px;
+                max-width: 100%; /* Make widgets 100% width on medium screens */
             }
 
             .matlab-iframe {
@@ -166,14 +162,11 @@
             }
 
             .iframe-container {
-                flex-direction: column;
-                align-items: center;
+                grid-template-columns: 1fr; /* 1 column layout on smaller screens */
             }
 
             .widget-card {
-                flex: 1 1 100%; /* Full-width widgets on very small screens */
-                max-width: 100%;
-                margin-bottom: 20px;
+                max-width: 100%; /* Make widgets take full width */
             }
 
             .matlab-iframe {
@@ -219,7 +212,7 @@
             <!-- Deflection Left Widget -->
             <div class="widget-card">
                 <div class="widget-title">
-                    <span class="icon">↕️</span>
+                    <span class="icon">↔️</span>
                     <strong>Deflection Left</strong>
                 </div>
                 <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" title="Deflection Left"></iframe>
