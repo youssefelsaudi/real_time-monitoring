@@ -91,23 +91,6 @@
         font-weight: bold;
     }
 
-    /* Button styles */
-    button {
-        padding: 12px 25px;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #2c3e50;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-        margin-top: 30px;
-    }
-
-    button:hover {
-        background-color: #34495e;
-    }
-
     /* Progress Bar */
     .progress-bar-container {
         width: 100%;
@@ -175,8 +158,6 @@
     <div class="progress-bar-container">
       <div id="workingTimeProgress" class="progress-bar"></div>
     </div>
-
-    <button id="viewWeeklyReportButton">View Weekly Report</button>
   </div>
 
   <div class="container-footer">
@@ -242,11 +223,6 @@
 
     // Initial fetch when the page loads
     fetchData();
-
-    // Event listener for "View Weekly Report" button
-    document.getElementById('viewWeeklyReportButton').addEventListener('click', function() {
-      window.location.href = 'weekly_report.html'; // Navigate to weekly_report.html
-    });
   </script>
 </body>
 </html>
