@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sensor Dashboard</title>
+  <title>Sensor Data Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
@@ -34,12 +34,9 @@
     /* Main container styles */
     .container {
         max-width: 1200px;
-        margin: 30px auto;
+        margin: 50px auto;
         padding: 20px;
         color: #333;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: #ffffff;
-        border-radius: 8px;
     }
 
     /* Subheading */
@@ -54,7 +51,7 @@
     p {
         font-size: 1.1em;
         color: #555;
-        margin-bottom: 20px;
+        margin-bottom: 40px;
         line-height: 1.8;
     }
 
@@ -73,7 +70,7 @@
     }
 
     table th {
-        background-color: #34495e;
+        background-color: #2c3e50;
         color: #fff;
     }
 
@@ -94,22 +91,21 @@
         font-weight: bold;
     }
 
-    /* Embedded Widgets Section */
-    .widgets-container {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        margin-top: 40px;
+    /* Progress Bar */
+    .progress-bar-container {
+        width: 100%;
+        height: 30px;
+        background-color: #ecf0f1;
+        border-radius: 5px;
+        margin-top: 30px;
     }
 
-    iframe {
-        border: none;
-        width: 100%;
-        max-width: 500px;
-        height: 300px;
-        margin: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
+    .progress-bar {
+        height: 100%;
+        background-color: #3498db;
+        width: 0%;
+        border-radius: 5px;
+        transition: width 0.5s ease-in-out;
     }
 
     /* Footer container */
@@ -118,81 +114,37 @@
         text-align: center;
         color: #7f8c8d;
         font-size: 0.9em;
-        padding-bottom: 20px;
     }
 
-    /* Media Query for mobile responsiveness */
-    @media screen and (max-width: 768px) {
-        /* Header font size */
-        header {
-            font-size: 2.2em;
-            padding: 30px 15px;
+    /* Working Time format */
+    .working-time {
+        font-size: 1.5em;
+        color: #3498db;
+        font-weight: bold;
+    }
+
+    /* Media Queries for mobile devices */
+    @media (max-width: 768px) {
+        body {
+            font-size: 14px;
         }
 
-        /* Table */
-        table {
-            width: 90%;
+        .container {
+            padding: 10px;
         }
 
-        /* Widgets container */
-        .widgets-container {
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        iframe {
-            max-width: 100%;
-            height: 250px;
-            margin: 10px 0;
-        }
-
-        /* Adjusting the font size and padding */
         h2 {
             font-size: 2em;
         }
 
-        p {
-            font-size: 1em;
+        table {
+            width: 100%;
         }
 
-        /* Footer container */
         .container-footer {
             font-size: 0.8em;
-            padding-bottom: 10px;
         }
     }
-
-    @media screen and (max-width: 480px) {
-        /* Further adjustments for very small screens */
-        header {
-            font-size: 1.8em;
-            padding: 25px 10px;
-        }
-
-        table {
-            width: 95%;
-        }
-
-        iframe {
-            height: 200px;
-            margin: 15px 0;
-        }
-
-        h2 {
-            font-size: 1.8em;
-        }
-
-        p {
-            font-size: 0.9em;
-        }
-
-        /* Footer */
-        .container-footer {
-            font-size: 0.7em;
-            padding-bottom: 5px;
-        }
-    }
-
   </style>
 </head>
 <body>
@@ -212,20 +164,25 @@
         <td id="frequency" class="normal-value">Loading...</td>
       </tr>
       <tr>
-        <th>Average Deflection:</th>
-        <td id="avgDeflection" class="normal-value">Loading...</td>
+        <th>Deflection Right:</th>
+        <td id="deflectionRight" class="normal-value">Loading...</td>
+      </tr>
+      <tr>
+        <th>Deflection Left:</th>
+        <td id="deflectionLeft" class="normal-value">Loading...</td>
       </tr>
     </table>
 
-    <div class="widgets-container">
-      <!-- Updated Deflection Widgets -->
-      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979737" title="Deflection Widget 1"></iframe>
-      
-      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" title="Deflection Widget 2"></iframe>
-    </div>
+    <h2>Load vs. Deflection Graph</h2>
+    <canvas id="loadDeflectionChart"></canvas>
 
-    <h2>Load vs. Deflection</h2>
-    <canvas id="loadDeflectionChart" width="400" height="200"></canvas>
+    <h2>Working Time</h2>
+    <p>Total Working Time: <span id="totalWorkingTime" class="working-time">Loading...</span></p>
+
+    <!-- Progress Bar for Working Time -->
+    <div class="progress-bar-container">
+      <div id="workingTimeProgress" class="progress-bar"></div>
+    </div>
   </div>
 
   <div class="container-footer">
@@ -235,95 +192,115 @@
   <script>
     let loadData = [];
     let deflectionData = [];
+    let timeData = [];
     let maxDataPoints = 20; // Limit the number of points on the graph
 
     // Thresholds for highlighting
     const loadThreshold = 750; // grams
     const frequencyThreshold = 3; // Hz
+    const deflectionThreshold = 1; // mm
 
-    // Function to fetch real-time data and update the table
+    // Function to format time in hours:minutes:seconds
+    function formatTime(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      return `${hours}h ${minutes}m ${secs}s`;
+    }
+
+    // Function to fetch real-time data and update the table and graph
     function fetchData() {
       fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
         .then(response => response.json())
         .then(data => {
           const latestEntry = data.feeds[data.feeds.length - 1];
-          const loadValue = parseFloat(latestEntry.field1);
-          const frequencyValue = parseFloat(latestEntry.field2);
-          const deflectionRight = parseFloat(latestEntry.field3); // Right deflection
-          const deflectionLeft = parseFloat(latestEntry.field4); // Left deflection
+          let loadValue = parseFloat(latestEntry.field1);
+          let frequencyValue = parseFloat(latestEntry.field2);
+          let deflectionRight = parseFloat(latestEntry.field3);
+          let deflectionLeft = parseFloat(latestEntry.field4);
+          const totalWorkingTime = parseFloat(latestEntry.field5);
 
-          // Calculate average deflection
-          const avgDeflection = (deflectionRight + deflectionLeft) / 2;
+          // Eliminate negative values, replace with 0
+          loadValue = loadValue < 0 ? 0 : loadValue;
+          deflectionRight = deflectionRight < 0 ? 0 : deflectionRight;
+          deflectionLeft = deflectionLeft < 0 ? 0 : deflectionLeft;
 
           // Update the table and apply color coding for high values
-          document.getElementById('loadValue').innerText = loadValue.toFixed(2) + ' g';
+          document.getElementById('loadValue').innerText = loadValue.toFixed(2);
           document.getElementById('loadValue').className = loadValue > loadThreshold ? 'high-value' : 'normal-value';
 
-          document.getElementById('frequency').innerText = frequencyValue.toFixed(2) + ' Hz';
+          document.getElementById('frequency').innerText = frequencyValue.toFixed(2);
           document.getElementById('frequency').className = frequencyValue > frequencyThreshold ? 'high-value' : 'normal-value';
 
-          document.getElementById('avgDeflection').innerText = avgDeflection.toFixed(2) + ' mm';
-          document.getElementById('avgDeflection').className = avgDeflection > 1 ? 'high-value' : 'normal-value';
+          document.getElementById('deflectionRight').innerText = deflectionRight.toFixed(2);
+          document.getElementById('deflectionRight').className = deflectionRight > deflectionThreshold ? 'high-value' : 'normal-value';
 
-          // Store data for chart (only keep the latest maxDataPoints)
-          if (loadData.length >= maxDataPoints) {
+          document.getElementById('deflectionLeft').innerText = deflectionLeft.toFixed(2);
+          document.getElementById('deflectionLeft').className = deflectionLeft > deflectionThreshold ? 'high-value' : 'normal-value';
+
+          // Format and display working time
+          document.getElementById('totalWorkingTime').innerText = formatTime(totalWorkingTime);
+
+          // Update progress bar for Working Time
+          const progressBar = document.getElementById('workingTimeProgress');
+          progressBar.style.width = `${(totalWorkingTime / 24) * 100}%`;
+
+          // Update the data arrays
+          loadData.push(loadValue);
+          deflectionData.push((deflectionRight + deflectionLeft) / 2); // Average deflection
+          timeData.push(new Date().toLocaleTimeString());
+
+          // Limit the number of data points
+          if (loadData.length > maxDataPoints) {
             loadData.shift();
             deflectionData.shift();
+            timeData.shift();
           }
 
-          loadData.push(loadValue);
-          deflectionData.push(avgDeflection);
-
-          // Update chart
-          updateChart();
+          // Update the graph with the new data
+          updateGraph();
         });
     }
 
-    // Update the Load vs. Deflection chart
-    function updateChart() {
-      const ctx = document.getElementById('loadDeflectionChart').getContext('2d');
-      if (window.loadDeflectionChart) {
-        loadDeflectionChart.update();
-      } else {
-        window.loadDeflectionChart = new Chart(ctx, {
-          type: 'scatter',
-          data: {
-            datasets: [{
-              label: 'Load vs. Deflection',
-              data: loadData.map((load, index) => ({ x: deflectionData[index], y: load })),
-              backgroundColor: '#3498db',
-              borderColor: '#2980b9',
-              pointBackgroundColor: '#2980b9',
-              pointRadius: 5,
-              fill: false,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              x: {
-                type: 'linear',
-                position: 'bottom',
-                title: {
-                  display: true,
-                  text: 'Deflection (mm)',
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: 'Load (g)',
-                },
-              }
+    // Create the graph
+    let ctx = document.getElementById('loadDeflectionChart').getContext('2d');
+    let loadDeflectionChart = new Chart(ctx, {
+      type: 'scatter',  // Use scatter plot
+      data: {
+        labels: timeData,
+        datasets: [{
+          label: 'Load vs. Deflection',
+          data: loadData.map((load, index) => ({ x: deflectionData[index], y: load })),
+          backgroundColor: 'rgba(52, 152, 219, 0.2)',
+          borderColor: '#2980b9',
+          fill: false,
+          lineTension: 0.1,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Deflection (mm)',  // X-axis label
             },
-            plugins: {
-              datalabels: {
-                display: false, // Disable data labels
-              }
-            }
-          }
-        });
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Load (g)',  // Y-axis label
+            },
+          },
+        }
       }
+    });
+
+    // Function to update the graph
+    function updateGraph() {
+      loadDeflectionChart.data.labels = timeData;
+      loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: deflectionData[index], y: load }));
+      loadDeflectionChart.update();
     }
 
     // Fetch data every 15 seconds
