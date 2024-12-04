@@ -212,12 +212,8 @@
         <td id="frequency" class="normal-value">Loading...</td>
       </tr>
       <tr>
-        <th>Potentiometer 1 Length:</th>
-        <td id="length1" class="normal-value">Loading...</td>
-      </tr>
-      <tr>
-        <th>Potentiometer 2 Length:</th>
-        <td id="length2" class="normal-value">Loading...</td>
+        <th>Average Deflection:</th>
+        <td id="avgDeflection" class="normal-value">Loading...</td>
       </tr>
     </table>
 
@@ -227,6 +223,9 @@
       
       <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" title="Deflection Widget 2"></iframe>
     </div>
+
+    <h2>Load vs. Deflection</h2>
+    <canvas id="loadDeflectionChart" width="400" height="200"></canvas>
   </div>
 
   <div class="container-footer">
@@ -235,14 +234,12 @@
 
   <script>
     let loadData = [];
-    let frequencyData = [];
-    let lengthData = [];
+    let deflectionData = [];
     let maxDataPoints = 20; // Limit the number of points on the graph
 
     // Thresholds for highlighting
     const loadThreshold = 750; // grams
     const frequencyThreshold = 3; // Hz
-    const lengthThreshold = 1; // mm
 
     // Function to fetch real-time data and update the table
     function fetchData() {
@@ -252,22 +249,81 @@
           const latestEntry = data.feeds[data.feeds.length - 1];
           const loadValue = parseFloat(latestEntry.field1);
           const frequencyValue = parseFloat(latestEntry.field2);
-          const length1 = parseFloat(latestEntry.field4);
-          const length2 = parseFloat(latestEntry.field5);
+          const deflectionRight = parseFloat(latestEntry.field3); // Right deflection
+          const deflectionLeft = parseFloat(latestEntry.field4); // Left deflection
+
+          // Calculate average deflection
+          const avgDeflection = (deflectionRight + deflectionLeft) / 2;
 
           // Update the table and apply color coding for high values
-          document.getElementById('loadValue').innerText = loadValue.toFixed(2);
+          document.getElementById('loadValue').innerText = loadValue.toFixed(2) + ' g';
           document.getElementById('loadValue').className = loadValue > loadThreshold ? 'high-value' : 'normal-value';
 
-          document.getElementById('frequency').innerText = frequencyValue.toFixed(2);
+          document.getElementById('frequency').innerText = frequencyValue.toFixed(2) + ' Hz';
           document.getElementById('frequency').className = frequencyValue > frequencyThreshold ? 'high-value' : 'normal-value';
 
-          document.getElementById('length1').innerText = length1.toFixed(2);
-          document.getElementById('length1').className = length1 > lengthThreshold ? 'high-value' : 'normal-value';
+          document.getElementById('avgDeflection').innerText = avgDeflection.toFixed(2) + ' mm';
+          document.getElementById('avgDeflection').className = avgDeflection > 1 ? 'high-value' : 'normal-value';
 
-          document.getElementById('length2').innerText = length2.toFixed(2);
-          document.getElementById('length2').className = length2 > lengthThreshold ? 'high-value' : 'normal-value';
+          // Store data for chart (only keep the latest maxDataPoints)
+          if (loadData.length >= maxDataPoints) {
+            loadData.shift();
+            deflectionData.shift();
+          }
+
+          loadData.push(loadValue);
+          deflectionData.push(avgDeflection);
+
+          // Update chart
+          updateChart();
         });
+    }
+
+    // Update the Load vs. Deflection chart
+    function updateChart() {
+      const ctx = document.getElementById('loadDeflectionChart').getContext('2d');
+      if (window.loadDeflectionChart) {
+        loadDeflectionChart.update();
+      } else {
+        window.loadDeflectionChart = new Chart(ctx, {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: 'Load vs. Deflection',
+              data: loadData.map((load, index) => ({ x: deflectionData[index], y: load })),
+              backgroundColor: '#3498db',
+              borderColor: '#2980b9',
+              pointBackgroundColor: '#2980b9',
+              pointRadius: 5,
+              fill: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                type: 'linear',
+                position: 'bottom',
+                title: {
+                  display: true,
+                  text: 'Deflection (mm)',
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Load (g)',
+                },
+              }
+            },
+            plugins: {
+              datalabels: {
+                display: false, // Disable data labels
+              }
+            }
+          }
+        });
+      }
     }
 
     // Fetch data every 15 seconds
