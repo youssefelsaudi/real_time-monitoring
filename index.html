@@ -223,18 +223,18 @@
         .then(response => response.json())
         .then(data => {
           const latestEntry = data.feeds[data.feeds.length - 1];
-          let loadValue = parseFloat(latestEntry.field1);
-          let frequencyValue = parseFloat(latestEntry.field2);
-          let deflectionRight = parseFloat(latestEntry.field3);
-          let deflectionLeft = parseFloat(latestEntry.field4);
-          const totalWorkingTime = parseFloat(latestEntry.field5);
+          
+          // Parse values from the correct fields
+          let loadValue = parseFloat(latestEntry.field1);    // Load (Field 1)
+          let frequencyValue = parseFloat(latestEntry.field2); // Frequency (Field 2)
+          let deflectionRight = parseFloat(latestEntry.field4); // Deflection Right (Field 4)
+          let deflectionLeft = parseFloat(latestEntry.field5);  // Deflection Left (Field 5)
 
-          // Eliminate negative values, replace with 0
-          loadValue = loadValue < 0 ? 0 : loadValue;
-          deflectionRight = deflectionRight < 0 ? 0 : deflectionRight;
-          deflectionLeft = deflectionLeft < 0 ? 0 : deflectionLeft;
+          // Ensure valid values (e.g., avoid NaN)
+          deflectionRight = isNaN(deflectionRight) ? 0 : deflectionRight;
+          deflectionLeft = isNaN(deflectionLeft) ? 0 : deflectionLeft;
 
-          // Update the table and apply color coding for high values
+          // Update the table with the correct values
           document.getElementById('loadValue').innerText = loadValue.toFixed(2);
           document.getElementById('loadValue').className = loadValue > loadThreshold ? 'high-value' : 'normal-value';
 
@@ -247,7 +247,7 @@
           document.getElementById('deflectionLeft').innerText = deflectionLeft.toFixed(2);
           document.getElementById('deflectionLeft').className = deflectionLeft > deflectionThreshold ? 'high-value' : 'normal-value';
 
-          // Update the data arrays
+          // Update data arrays for graphing
           loadData.push(loadValue);
           deflectionRightData.push(deflectionRight);
           deflectionLeftData.push(deflectionLeft);
@@ -306,7 +306,7 @@
     function updateGraph() {
       loadDeflectionChart.data.labels = timeData;
       loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: load, y: deflectionRightData[index] }));
-      loadDeflectionChart.update();
+      loadDeflectionChart.update();  // Trigger the chart update
     }
 
     // Fetch data every 15 seconds
