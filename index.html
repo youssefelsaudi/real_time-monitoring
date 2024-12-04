@@ -108,7 +108,37 @@
         transition: width 0.5s ease-in-out;
     }
 
-    /* Footer container */
+    /* Widget container */
+    .widget-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .widget {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        width: 30%;
+    }
+
+    .widget h3 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        color: #34495e;
+    }
+
+    .slider {
+        width: 100%;
+        margin: 20px 0;
+    }
+
+    .widget p {
+        font-size: 1.2em;
+        color: #555;
+    }
+
     .container-footer {
         margin-top: 50px;
         text-align: center;
@@ -144,6 +174,16 @@
         .container-footer {
             font-size: 0.8em;
         }
+
+        .widget-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .widget {
+            width: 80%;
+            margin-bottom: 20px;
+        }
     }
   </style>
 </head>
@@ -176,12 +216,29 @@
     <h2>Load vs. Deflection Graph</h2>
     <canvas id="loadDeflectionChart"></canvas>
 
-    <h2>Working Time</h2>
-    <p>Total Working Time: <span id="totalWorkingTime" class="working-time">Loading...</span></p>
+    <!-- Widget Section for controlling thresholds -->
+    <div class="widget-container">
+      <div class="widget">
+        <h3>Threshold Controls</h3>
+        <p>Adjust Load Threshold:</p>
+        <input id="loadThreshold" class="slider" type="range" min="0" max="1000" step="10" value="750">
+        <p id="loadThresholdValue">750g</p>
+      </div>
 
-    <!-- Progress Bar for Working Time -->
-    <div class="progress-bar-container">
-      <div id="workingTimeProgress" class="progress-bar"></div>
+      <div class="widget">
+        <h3>Working Time</h3>
+        <p>Total Working Time: <span id="totalWorkingTime" class="working-time">Loading...</span></p>
+
+        <!-- Progress Bar for Working Time -->
+        <div class="progress-bar-container">
+          <div id="workingTimeProgress" class="progress-bar"></div>
+        </div>
+      </div>
+
+      <div class="widget">
+        <h3>Data Refresh</h3>
+        <button id="refreshDataBtn" onclick="fetchData()">Refresh Data</button>
+      </div>
     </div>
   </div>
 
@@ -195,8 +252,7 @@
     let timeData = [];
     let maxDataPoints = 20; // Limit the number of points on the graph
 
-    // Thresholds for highlighting
-    const loadThreshold = 750; // grams
+    let loadThreshold = 750; // Default threshold for load
     const frequencyThreshold = 3; // Hz
     const deflectionThreshold = 1; // mm
 
@@ -223,93 +279,4 @@
           // Eliminate negative values, replace with 0
           loadValue = loadValue < 0 ? 0 : loadValue;
           deflectionRight = deflectionRight < 0 ? 0 : deflectionRight;
-          deflectionLeft = deflectionLeft < 0 ? 0 : deflectionLeft;
-
-          // Update the table and apply color coding for high values
-          document.getElementById('loadValue').innerText = loadValue.toFixed(2);
-          document.getElementById('loadValue').className = loadValue > loadThreshold ? 'high-value' : 'normal-value';
-
-          document.getElementById('frequency').innerText = frequencyValue.toFixed(2);
-          document.getElementById('frequency').className = frequencyValue > frequencyThreshold ? 'high-value' : 'normal-value';
-
-          document.getElementById('deflectionRight').innerText = deflectionRight.toFixed(2);
-          document.getElementById('deflectionRight').className = deflectionRight > deflectionThreshold ? 'high-value' : 'normal-value';
-
-          document.getElementById('deflectionLeft').innerText = deflectionLeft.toFixed(2);
-          document.getElementById('deflectionLeft').className = deflectionLeft > deflectionThreshold ? 'high-value' : 'normal-value';
-
-          // Format and display working time
-          document.getElementById('totalWorkingTime').innerText = formatTime(totalWorkingTime);
-
-          // Update progress bar for Working Time
-          const progressBar = document.getElementById('workingTimeProgress');
-          progressBar.style.width = `${(totalWorkingTime / 24) * 100}%`;
-
-          // Update the data arrays
-          loadData.push(loadValue);
-          deflectionData.push((deflectionRight + deflectionLeft) / 2); // Average deflection
-          timeData.push(new Date().toLocaleTimeString());
-
-          // Limit the number of data points
-          if (loadData.length > maxDataPoints) {
-            loadData.shift();
-            deflectionData.shift();
-            timeData.shift();
-          }
-
-          // Update the graph with the new data
-          updateGraph();
-        });
-    }
-
-    // Create the graph
-    let ctx = document.getElementById('loadDeflectionChart').getContext('2d');
-    let loadDeflectionChart = new Chart(ctx, {
-      type: 'scatter',  // Use scatter plot
-      data: {
-        labels: timeData,
-        datasets: [{
-          label: 'Load vs. Deflection',
-          data: loadData.map((load, index) => ({ x: deflectionData[index], y: load })),
-          backgroundColor: 'rgba(52, 152, 219, 0.2)',
-          borderColor: '#2980b9',
-          fill: false,
-          lineTension: 0.1,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Deflection (mm)',  // X-axis label
-            },
-            min: 0,  // Start X-axis from 0
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Load (g)',  // Y-axis label
-            },
-            min: 0,  // Start Y-axis from 0
-          },
-        }
-      }
-    });
-
-    // Function to update the graph
-    function updateGraph() {
-      loadDeflectionChart.data.labels = timeData;
-      loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: deflectionData[index], y: load }));
-      loadDeflectionChart.update();
-    }
-
-    // Fetch data every 15 seconds
-    setInterval(fetchData, 15000);
-
-    // Initial fetch when the page loads
-    fetchData();
-  </script>
-</body>
-</html>
+          deflectionLeft = deflectionLeft < 0 ? 0 : deflectionLeft
