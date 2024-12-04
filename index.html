@@ -121,6 +121,78 @@
         padding-bottom: 20px;
     }
 
+    /* Media Query for mobile responsiveness */
+    @media screen and (max-width: 768px) {
+        /* Header font size */
+        header {
+            font-size: 2.2em;
+            padding: 30px 15px;
+        }
+
+        /* Table */
+        table {
+            width: 90%;
+        }
+
+        /* Widgets container */
+        .widgets-container {
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        iframe {
+            max-width: 100%;
+            height: 250px;
+            margin: 10px 0;
+        }
+
+        /* Adjusting the font size and padding */
+        h2 {
+            font-size: 2em;
+        }
+
+        p {
+            font-size: 1em;
+        }
+
+        /* Footer container */
+        .container-footer {
+            font-size: 0.8em;
+            padding-bottom: 10px;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        /* Further adjustments for very small screens */
+        header {
+            font-size: 1.8em;
+            padding: 25px 10px;
+        }
+
+        table {
+            width: 95%;
+        }
+
+        iframe {
+            height: 200px;
+            margin: 15px 0;
+        }
+
+        h2 {
+            font-size: 1.8em;
+        }
+
+        p {
+            font-size: 0.9em;
+        }
+
+        /* Footer */
+        .container-footer {
+            font-size: 0.7em;
+            padding-bottom: 5px;
+        }
+    }
+
   </style>
 </head>
 <body>
@@ -150,11 +222,10 @@
     </table>
 
     <div class="widgets-container">
-      <!-- Deflection on Right Widget -->
-      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/966911" title="Deflection on Right"></iframe>
+      <!-- Updated Deflection Widgets -->
+      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979737" title="Deflection Widget 1"></iframe>
       
-      <!-- Deflection on Left Widget -->
-      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/966908" title="Deflection on Left"></iframe>
+      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/979736" title="Deflection Widget 2"></iframe>
     </div>
   </div>
 
