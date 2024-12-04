@@ -267,7 +267,7 @@
         labels: timeData,
         datasets: [{
           label: 'Load vs. Deflection',
-          data: loadData.map((load, index) => ({ x: deflectionData[index], y: load })),
+          data: loadData.map((load, index) => ({ x: load, y: deflectionData[index] })), // Swap the axes here
           backgroundColor: 'rgba(52, 152, 219, 0.2)',
           borderColor: '#2980b9',
           fill: false,
@@ -280,14 +280,14 @@
           x: {
             title: {
               display: true,
-              text: 'Deflection (mm)',  // X-axis label
+              text: 'Load (g)',  // X-axis label (now showing load)
             },
             min: 0 // Ensure the X-axis starts from 0
           },
           y: {
             title: {
               display: true,
-              text: 'Load (g)',  // Y-axis label
+              text: 'Deflection (mm)',  // Y-axis label (now showing deflection)
             },
             min: 0 // Ensure the Y-axis starts from 0
           },
@@ -298,7 +298,7 @@
     // Function to update the graph
     function updateGraph() {
       loadDeflectionChart.data.labels = timeData;
-      loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: deflectionData[index], y: load }));
+      loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: load, y: deflectionData[index] })); // Swap the axes here
       loadDeflectionChart.update();
     }
 
