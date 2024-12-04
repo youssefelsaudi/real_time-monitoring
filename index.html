@@ -34,9 +34,12 @@
     /* Main container styles */
     .container {
         max-width: 1200px;
-        margin: 50px auto;
+        margin: 30px auto;
         padding: 20px;
         color: #333;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        border-radius: 8px;
     }
 
     /* Subheading */
@@ -51,7 +54,7 @@
     p {
         font-size: 1.1em;
         color: #555;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
         line-height: 1.8;
     }
 
@@ -70,7 +73,7 @@
     }
 
     table th {
-        background-color: #2c3e50;
+        background-color: #34495e;
         color: #fff;
     }
 
@@ -91,21 +94,22 @@
         font-weight: bold;
     }
 
-    /* Progress Bar */
-    .progress-bar-container {
-        width: 100%;
-        height: 30px;
-        background-color: #ecf0f1;
-        border-radius: 5px;
-        margin-top: 30px;
+    /* Embedded Widgets Section */
+    .widgets-container {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin-top: 40px;
     }
 
-    .progress-bar {
-        height: 100%;
-        background-color: #3498db;
-        width: 0%;
-        border-radius: 5px;
-        transition: width 0.5s ease-in-out;
+    iframe {
+        border: none;
+        width: 100%;
+        max-width: 500px;
+        height: 300px;
+        margin: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
     }
 
     /* Footer container */
@@ -114,13 +118,7 @@
         text-align: center;
         color: #7f8c8d;
         font-size: 0.9em;
-    }
-
-    /* Working Time format */
-    .working-time {
-        font-size: 1.5em;
-        color: #3498db;
-        font-weight: bold;
+        padding-bottom: 20px;
     }
 
   </style>
@@ -151,12 +149,12 @@
       </tr>
     </table>
 
-    <h2>Working Time</h2>
-    <p>Total Working Time: <span id="totalWorkingTime" class="working-time">Loading...</span></p>
-
-    <!-- Progress Bar for Working Time -->
-    <div class="progress-bar-container">
-      <div id="workingTimeProgress" class="progress-bar"></div>
+    <div class="widgets-container">
+      <!-- Deflection on Right Widget -->
+      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/966911" title="Deflection on Right"></iframe>
+      
+      <!-- Deflection on Left Widget -->
+      <iframe src="https://thingspeak.mathworks.com/channels/2741407/widgets/966908" title="Deflection on Left"></iframe>
     </div>
   </div>
 
@@ -168,21 +166,12 @@
     let loadData = [];
     let frequencyData = [];
     let lengthData = [];
-    let timeData = [];
     let maxDataPoints = 20; // Limit the number of points on the graph
 
     // Thresholds for highlighting
     const loadThreshold = 750; // grams
     const frequencyThreshold = 3; // Hz
     const lengthThreshold = 1; // mm
-
-    // Function to format time in hours:minutes:seconds
-    function formatTime(seconds) {
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const secs = seconds % 60;
-      return `${hours}h ${minutes}m ${secs}s`;
-    }
 
     // Function to fetch real-time data and update the table
     function fetchData() {
@@ -194,7 +183,6 @@
           const frequencyValue = parseFloat(latestEntry.field2);
           const length1 = parseFloat(latestEntry.field4);
           const length2 = parseFloat(latestEntry.field5);
-          const totalWorkingTime = parseFloat(latestEntry.field6);
 
           // Update the table and apply color coding for high values
           document.getElementById('loadValue').innerText = loadValue.toFixed(2);
@@ -208,13 +196,6 @@
 
           document.getElementById('length2').innerText = length2.toFixed(2);
           document.getElementById('length2').className = length2 > lengthThreshold ? 'high-value' : 'normal-value';
-
-          // Format and display working time
-          document.getElementById('totalWorkingTime').innerText = formatTime(totalWorkingTime);
-
-          // Update progress bar for Working Time
-          const progressBar = document.getElementById('workingTimeProgress');
-          progressBar.style.width = `${(totalWorkingTime / 24) * 100}%`;
         });
     }
 
