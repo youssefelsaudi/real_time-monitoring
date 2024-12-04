@@ -166,8 +166,12 @@
         <td id="frequency" class="normal-value">Loading...</td>
       </tr>
       <tr>
-        <th>Deflection:</th>
-        <td id="deflection" class="normal-value">Loading...</td>
+        <th>Deflection Right:</th>
+        <td id="deflectionRight" class="normal-value">Loading...</td>
+      </tr>
+      <tr>
+        <th>Deflection Left:</th>
+        <td id="deflectionLeft" class="normal-value">Loading...</td>
       </tr>
     </table>
 
@@ -184,7 +188,7 @@
       </div>
     </div>
 
-    <h2>Load vs. Deflection Graph</h2>
+    <h2>Load vs. Deflection Right Graph</h2>
     <div class="chart-container">
       <canvas id="loadDeflectionChart"></canvas>
     </div>
@@ -196,7 +200,8 @@
 
   <script>
     let loadData = [];
-    let deflectionData = [];
+    let deflectionRightData = [];
+    let deflectionLeftData = [];
     let timeData = [];
     let maxDataPoints = 20; // Limit the number of points on the graph
 
@@ -237,20 +242,23 @@
           document.getElementById('frequency').innerText = frequencyValue.toFixed(2);
           document.getElementById('frequency').className = frequencyValue > frequencyThreshold ? 'high-value' : 'normal-value';
 
-          // Update deflection row with average of deflection right and left
-          const avgDeflection = (deflectionRight + deflectionLeft) / 2;
-          document.getElementById('deflection').innerText = avgDeflection.toFixed(2);
-          document.getElementById('deflection').className = avgDeflection > deflectionThreshold ? 'high-value' : 'normal-value';
+          document.getElementById('deflectionRight').innerText = deflectionRight.toFixed(2);
+          document.getElementById('deflectionRight').className = deflectionRight > deflectionThreshold ? 'high-value' : 'normal-value';
+
+          document.getElementById('deflectionLeft').innerText = deflectionLeft.toFixed(2);
+          document.getElementById('deflectionLeft').className = deflectionLeft > deflectionThreshold ? 'high-value' : 'normal-value';
 
           // Update the data arrays
           loadData.push(loadValue);
-          deflectionData.push(avgDeflection); // Average deflection
+          deflectionRightData.push(deflectionRight);
+          deflectionLeftData.push(deflectionLeft);
           timeData.push(new Date().toLocaleTimeString());
 
           // Limit the number of data points
           if (loadData.length > maxDataPoints) {
             loadData.shift();
-            deflectionData.shift();
+            deflectionRightData.shift();
+            deflectionLeftData.shift();
             timeData.shift();
           }
 
@@ -266,8 +274,8 @@
       data: {
         labels: timeData,
         datasets: [{
-          label: 'Load vs. Deflection',
-          data: loadData.map((load, index) => ({ x: load, y: deflectionData[index] })), // Swap the axes here
+          label: 'Load vs. Deflection Right',
+          data: loadData.map((load, index) => ({ x: load, y: deflectionRightData[index] })),
           backgroundColor: 'rgba(52, 152, 219, 0.2)',
           borderColor: '#2980b9',
           fill: false,
@@ -287,7 +295,7 @@
           y: {
             title: {
               display: true,
-              text: 'Deflection (mm)',  // Y-axis label (now showing deflection)
+              text: 'Deflection (mm)',  // Y-axis label (deflection right)
             },
             min: 0 // Ensure the Y-axis starts from 0
           },
@@ -298,7 +306,7 @@
     // Function to update the graph
     function updateGraph() {
       loadDeflectionChart.data.labels = timeData;
-      loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: load, y: deflectionData[index] })); // Swap the axes here
+      loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: load, y: deflectionRightData[index] }));
       loadDeflectionChart.update();
     }
 
