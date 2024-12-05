@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sensor Data Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
   <style>
     /* General body styles */
@@ -189,7 +187,8 @@
 
     <h2>Load vs Deflection Right Graph</h2>
     <div class="chart-container">
-      <canvas id="loadDeflectionChart"></canvas>
+      <!-- Removed Chart.js, this will be the ThingSpeak MATLAB Visualization -->
+      <iframe width="100%" height="500" src="https://thingspeak.mathworks.com/apps/matlab_visualizations/592729?height=auto&width=auto" frameborder="0"></iframe>
     </div>
   </div>
 
@@ -209,15 +208,7 @@
     const frequencyThreshold = 3; // Hz
     const deflectionThreshold = 1; // mm
 
-    // Function to format time in hours:minutes:seconds
-    function formatTime(seconds) {
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const secs = seconds % 60;
-      return `${hours}h ${minutes}m ${secs}s`;
-    }
-
-    // Function to fetch real-time data and update the table and graph
+    // Function to fetch real-time data and update the table
     function fetchData() {
       fetch('https://api.thingspeak.com/channels/2741407/feeds.json?api_key=HNSZO7OR50SIIPF4')
         .then(response => response.json())
@@ -246,67 +237,7 @@
 
           document.getElementById('deflectionLeft').innerText = deflectionLeft.toFixed(2);
           document.getElementById('deflectionLeft').className = deflectionLeft > deflectionThreshold ? 'high-value' : 'normal-value';
-
-          // Update data arrays for graphing
-          loadData.push(loadValue);
-          deflectionRightData.push(deflectionRight);
-          deflectionLeftData.push(deflectionLeft);
-          timeData.push(new Date().toLocaleTimeString());
-
-          // Limit the number of data points
-          if (loadData.length > maxDataPoints) {
-            loadData.shift();
-            deflectionRightData.shift();
-            deflectionLeftData.shift();
-            timeData.shift();
-          }
-
-          // Update the graph with the new data
-          updateGraph();
         });
-    }
-
-    // Create the graph
-    let ctx = document.getElementById('loadDeflectionChart').getContext('2d');
-    let loadDeflectionChart = new Chart(ctx, {
-      type: 'scatter',  // Use scatter plot
-      data: {
-        labels: timeData,
-        datasets: [{
-          label: 'Load vs. Deflection Right',
-          data: loadData.map((load, index) => ({ x: load, y: deflectionRightData[index] })),
-          backgroundColor: 'rgba(52, 152, 219, 0.2)',
-          borderColor: '#2980b9',
-          fill: false,
-          lineTension: 0.1,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Load (g)',  // X-axis label (now showing load)
-            },
-            min: 0 // Ensure the X-axis starts from 0
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Deflection (mm)',  // Y-axis label (deflection right)
-            },
-            min: 0 // Ensure the Y-axis starts from 0
-          },
-        }
-      }
-    });
-
-    // Function to update the graph
-    function updateGraph() {
-      loadDeflectionChart.data.labels = timeData;
-      loadDeflectionChart.data.datasets[0].data = loadData.map((load, index) => ({ x: load, y: deflectionRightData[index] }));
-      loadDeflectionChart.update();  // Trigger the chart update
     }
 
     // Fetch data every 15 seconds
