@@ -15,6 +15,8 @@
         color: #333;
         text-align: center;
         line-height: 1.6;
+        width: 100%;
+        overflow-x: hidden; /* Prevent horizontal scroll */
     }
 
     /* Header Section */
@@ -31,10 +33,11 @@
 
     /* Main container styles */
     .container {
-        max-width: 1200px;
+        max-width: 100%;
         margin: 50px auto;
         padding: 20px;
         color: #333;
+        box-sizing: border-box;
     }
 
     /* Subheading */
@@ -208,7 +211,7 @@
 
     <h2>Load vs Deflection Graph</h2>
     <div class="chart-container">
-      <!-- Removed Chart.js, this will be the ThingSpeak MATLAB Visualization -->
+      <!-- Replaced the previous graph with your provided ThingSpeak visualization iframe -->
       <iframe width="100%" height="500" src="https://thingspeak.mathworks.com/apps/matlab_visualizations/592729?height=auto&width=auto" frameborder="0"></iframe>
     </div>
   </div>
