@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Code for Structural Health Monitoring System</title>
+    <style>
+        /* General reset for styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f7f7f7;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        .code-container {
+            background-color: #282c34;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            font-size: 16px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        footer p {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>ESP32 Code for Structural Health Monitoring System</h1>
+        <p>Displaying the source code for monitoring the bridge's health.</p>
+    </header>
+
+    <section class="code-container">
+        <h2>ESP32 Code:</h2>
+        <pre><code>
+// ESP32 code for Structural Health Monitoring System
+
+#include &lt;WiFi.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;Adafruit_MPU6050.h&gt;
+#include &lt;Adafruit_Sensor.h&gt;
+#include "HX711.h"
+#include &lt;HTTPClient.h&gt;
+#include &lt;time.h&gt; // For NTP-based timestamp
+#include &lt;esp_wifi.h&gt;
+#include &lt;EEPROM.h&gt; // For using RTC memory
+
+// Wi-Fi credentials
+const char* ssid = "Orange_629C";
+const char* password = "WHAT THE SIGMA";
+
+// ThingSpeak credentials
+const char* thingspeakServer = "http://api.thingspeak.com/update";
+String apiKeyChannel = "JTEBR201T5O5C5JP"; // ThingSpeak Write API Key
+
+// NTP time server configuration
+const char* ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 3600; // Adjust to your timezone (in seconds)
+const int daylightOffset_sec = 3600; // Daylight saving time offset
+
+// MPU-6050 setup
+Adafruit_MPU6050 mpu;
+
+// HX711 load cell setup (GPIO 27 for DT and GPIO 26 for SCK)
+#define LOADCELL_DT 27
+#define LOADCELL_SCK 26
+HX711 loadCell;
+
+// Potentiometer pins
+#define POT1_PIN 34
+#define POT2_PIN 35
+
+// Buzzer pin (Updated to GPIO 18)
+#define BUZZER_PIN 18  // Buzzer pin now on GPIO 18
+
+// Maximum voltage and length constants for potentiometers
+const float V_max = 3.3;      // Maximum voltage from potentiometer in Volts
+const float L_max = 20.0;     // Maximum length in millimeters (20 mm)
+
+// RTC Memory Setup
+RTC_DATA_ATTR float lastZeroCrossingTime = 0;  // This variable will retain its value across deep sleep cycles
+RTC_DATA_ATTR bool wasPositive = false;
+
+// Declare Sensor Variables Globally
+float pot1Value = 0;
+float pot2Value = 0;
+float length1 = 0;
+float length2 = 0;
+float loadValue = 0;
+float oscillationFrequency = 0;
+float accelX = 0;
+
+unsigned long sampleInterval = 25000 * 1000; // 25 seconds in microseconds for deep sleep
+
+// Thresholds
+const float loadThreshold = 750.0;  // Load threshold: 750 grams
+const float frequencyThreshold = 3.0; // Frequency threshold: 3 Hz
+const float lengthThreshold = 1.0;   // Length threshold: 1 mm for either potentiometer
+
+// Calibration values for load cell (replace with your values)
+long tareOffset = -2134700;  // Set to the raw tare reading after taring (before using calibration factor)
+float calibrationFactor = -154.02; // Set the calibration factor after performing a known weight calibration
+
+void setup() {
+  Serial.begin(115200);
+
+  // Connect to Wi-Fi
+  connectToWiFi();
+
+  // Initialize MPU-6050
+  initializeMPU6050();
+
+  // Initialize HX711 (Load Cell) with calibration
+  initializeLoadCell();
+
+  // Set potentiometer pins as input
+  pinMode(POT1_PIN, INPUT);
+  pinMode(POT2_PIN, INPUT);
+
+  // Set buzzer pin as output
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW); // Ensure the buzzer is off initially
+
+  // Perform measurement and send data to ThingSpeak
+  performMeasurementAndSend();
+
+  // Sleep and wakeup for the next cycle
+  esp_sleep_enable_timer_wakeup(sampleInterval);
+  esp_deep_sleep_start();
+}
+
+void loop() {
+  // No need to do anything in loop since everything is handled in setup()
+}
+
+// Other functions and code continue as shown...
+</code></pre>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Structural Health Monitoring | Youssef Sayed</p>
+    </footer>
+
+</body>
+</html>
