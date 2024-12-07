@@ -265,9 +265,9 @@
           document.getElementById('deflectionLeft').innerText = deflectionLeft.toFixed(2);
           document.getElementById('deflectionLeft').className = deflectionLeft > deflectionThreshold ? 'high-value' : 'normal-value';
 
-          // Update the new Sensor 3 value
+          // Update the new Sensor 3 value without threshold (always green)
           document.getElementById('sensor3Value').innerText = sensor3Value.toFixed(2);
-          document.getElementById('sensor3Value').className = sensor3Value > deflectionThreshold ? 'high-value' : 'normal-value';
+          document.getElementById('sensor3Value').className = 'normal-value';  // Always green
         });
     }
 
