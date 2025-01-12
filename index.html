@@ -193,10 +193,6 @@
         <th>Deflection Left:</th>
         <td id="deflectionLeft" class="normal-value">Loading...</td>
       </tr>
-      <tr>
-        <th>Acceleration:</th>
-        <td id="sensor3Value" class="normal-value">Loading...</td>
-      </tr>
     </table>
 
     <div class="widget-container">
@@ -245,12 +241,10 @@
           let frequencyValue = parseFloat(latestEntry.field2); // Frequency (Field 2)
           let deflectionRight = parseFloat(latestEntry.field4); // Deflection Right (Field 4)
           let deflectionLeft = parseFloat(latestEntry.field5);  // Deflection Left (Field 5)
-          let sensor3Value = parseFloat(latestEntry.field3); // Sensor 3 (Field 3)
 
           // Ensure valid values (e.g., avoid NaN)
           deflectionRight = isNaN(deflectionRight) ? 0 : deflectionRight;
           deflectionLeft = isNaN(deflectionLeft) ? 0 : deflectionLeft;
-          sensor3Value = isNaN(sensor3Value) ? 0 : sensor3Value;
 
           // Update the table with the correct values
           document.getElementById('loadValue').innerText = loadValue.toFixed(2);
@@ -264,10 +258,6 @@
 
           document.getElementById('deflectionLeft').innerText = deflectionLeft.toFixed(2);
           document.getElementById('deflectionLeft').className = deflectionLeft > deflectionThreshold ? 'high-value' : 'normal-value';
-
-          // Update the new Sensor 3 value without threshold (always green)
-          document.getElementById('sensor3Value').innerText = sensor3Value.toFixed(2);
-          document.getElementById('sensor3Value').className = 'normal-value';  // Always green
         });
     }
 
